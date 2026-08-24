@@ -15,25 +15,25 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans pb-24">
+<body class="bg-gray-100 text-gray-800 font-sans pb-24">
 
-    <!-- Header con Logo Profesional -->
-    <header class="bg-emerald-600 text-white p-4 shadow-md sticky top-0 z-50">
+    <!-- Header con Logo Profesional (Rojo y Amarillo) -->
+    <header class="bg-red-600 text-white p-4 shadow-lg sticky top-0 z-50 border-b-4 border-yellow-400">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2.5 cursor-pointer" onclick="cargarLocalesDirecto()">
-                <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-md">
-                    <span class="text-emerald-600 text-xl font-black">⚡</span>
+                <div class="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center shadow-md">
+                    <span class="text-red-700 text-2xl font-black">⚡</span>
                 </div>
                 <div>
-                    <h1 class="text-lg font-black tracking-wider leading-tight">ALTOKE</h1>
-                    <p class="text-[10px] text-emerald-200 font-medium tracking-wide">CURACAVÍ & MARÍA PINTO</p>
+                    <h1 class="text-xl font-black tracking-wider leading-tight text-yellow-300 drop-shadow">ALTOKE</h1>
+                    <p class="text-[10px] text-white font-bold tracking-wide">CURACAVÍ & MARÍA PINTO</p>
                 </div>
             </div>
             <div class="flex gap-2">
-                <button onclick="verSeccionDriver()" class="text-xs bg-emerald-700 hover:bg-emerald-800 px-3 py-1.5 rounded-full font-semibold transition shadow-sm">
+                <button onclick="verSeccionDriverLogin()" class="text-xs bg-yellow-400 hover:bg-yellow-500 text-red-900 px-3 py-1.5 rounded-full font-bold transition shadow-sm">
                     🛵 Drivers
                 </button>
-                <button onclick="cargarLocalesDirecto()" class="text-xs bg-emerald-700 hover:bg-emerald-800 px-3 py-1.5 rounded-full font-semibold transition shadow-sm">
+                <button onclick="cargarLocalesDirecto()" class="text-xs bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded-full font-semibold transition shadow-sm">
                     Inicio 🏠
                 </button>
             </div>
@@ -41,54 +41,87 @@
     </header>
 
     <!-- Contenedor Principal -->
-    <main class="max-w-md mx-auto p-4">
+    <main class="max-w-md mx-auto p-4 space-y-4">
         
         <!-- 1. Vitrina General de Locales -->
         <div id="stores-view">
-            <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl mb-4 shadow-sm text-center">
-                <h2 class="text-lg font-bold text-gray-900">¡Pide lo que quieras al instante! ⚡</h2>
-                <p class="text-xs text-emerald-700 mt-0.5 font-medium">Delivery local rápido en tu comuna</p>
+            <!-- Banner de Anuncio / Auspicio Superior -->
+            <div class="bg-gradient-to-r from-yellow-400 to-amber-500 border border-yellow-500 p-4 rounded-2xl mb-4 shadow-md text-red-900 text-center relative overflow-hidden">
+                <span class="absolute top-1 right-2 text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Auspicio</span>
+                <h3 class="text-sm font-black uppercase tracking-wide">🔥 ¡Patrocina tu negocio aquí!</h3>
+                <p class="text-xs font-semibold mt-0.5">Llega a todo Curacaví y María Pinto con Altoke.</p>
             </div>
+
+            <div class="bg-red-50 border border-red-200 p-4 rounded-2xl mb-4 shadow-sm text-center">
+                <h2 class="text-lg font-bold text-red-900">¡Pide lo que quieras al instante! ⚡</h2>
+                <p class="text-xs text-red-700 mt-0.5 font-medium">Delivery rápido y seguro en tu comuna</p>
+            </div>
+
             <div class="flex justify-between items-center mb-3">
                 <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wide">Locales Disponibles</h3>
-                <span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-full">Abiertos ahora</span>
+                <span class="text-xs text-red-600 font-bold bg-red-100 px-2.5 py-1 rounded-full">Abiertos ahora</span>
             </div>
+
             <div id="stores-container" class="space-y-3">
                 <p class="text-gray-400 text-center py-8 text-sm">Cargando locales...</p>
+            </div>
+
+            <!-- Segundo Espacio de Auspicio Inferior -->
+            <div class="bg-white border-2 border-dashed border-yellow-400 p-3 rounded-2xl mt-6 text-center shadow-sm">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Espacio Publicitario disponible</p>
+                <p class="text-xs font-semibold text-gray-600 mt-0.5">Anuncia tu marca en esta sección 📞</p>
             </div>
         </div>
 
         <!-- 2. Menú del Local -->
         <div id="menu-view" class="hidden">
-            <button onclick="volverALocales()" class="text-sm text-emerald-600 font-semibold mb-3 flex items-center hover:underline">
+            <button onclick="volverALocales()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver a los locales
             </button>
-            <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl mb-4 shadow-sm">
-                <h2 id="nombre-local-titulo" class="text-xl font-bold text-gray-900"></h2>
-                <p id="whatsapp-local-info" class="text-xs text-emerald-700 mt-0.5 font-medium">Despacho activo Altoke</p>
+            <div class="bg-red-50 border border-red-200 p-4 rounded-2xl mb-4 shadow-sm">
+                <h2 id="nombre-local-titulo" class="text-xl font-bold text-red-950"></h2>
+                <p id="whatsapp-local-info" class="text-xs text-red-700 mt-0.5 font-medium">Despacho activo Altoke</p>
             </div>
             <div id="products-container" class="space-y-3"></div>
         </div>
 
-        <!-- 3. Vista de Drivers / Repartidores con Mapa -->
-        <div id="driver-view" class="hidden">
-            <button onclick="cargarLocalesDirecto()" class="text-sm text-emerald-600 font-semibold mb-3 flex items-center hover:underline">
+        <!-- 3. Vista de Login de Drivers -->
+        <div id="driver-login-view" class="hidden">
+            <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver al inicio
             </button>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-4 space-y-4">
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 text-center space-y-4 my-6">
+                <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">🛵</div>
+                <h2 class="text-xl font-bold text-gray-900">Acceso de Repartidores</h2>
+                <p class="text-xs text-gray-500">Ingresa tu clave de acceso para ver los pedidos en ruta y mapas.</p>
+                
+                <input type="password" id="driver-password" placeholder="Ingresa tu clave secreta" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-red-500 outline-none">
+                
+                <button onclick="verificarClaveDriver()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow transition">
+                    Ingresar al Panel 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. Vista Privada de Drivers / Repartidores con Mapa -->
+        <div id="driver-view" class="hidden">
+            <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
+                ⬅ Salir del panel
+            </button>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mb-4 space-y-4">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-900 mb-1">Panel y Mapa de Ruta 🛵</h2>
-                    <p class="text-xs text-gray-500">Visualiza en tiempo real la zona de entrega y pedidos en ruta.</p>
+                    <h2 class="text-xl font-bold text-red-950 mb-1">Panel de Drivers 🛵</h2>
+                    <p class="text-xs text-gray-500">Zona operativa activa en Curacaví y María Pinto.</p>
                 </div>
                 
                 <!-- Contenedor del Mapa -->
                 <div class="space-y-1">
-                    <label class="block text-xs font-semibold text-gray-600">Mapa de Cobertura (Curacaví / María Pinto)</label>
-                    <div id="map" class="w-full h-64 rounded-xl border border-gray-200 z-10 shadow-inner"></div>
+                    <label class="block text-xs font-semibold text-gray-600">Mapa de Cobertura en Vivo</label>
+                    <div id="map" class="w-full h-64 rounded-xl border border-gray-300 z-10 shadow-inner"></div>
                 </div>
 
-                <div class="bg-blue-50 border border-blue-100 p-3.5 rounded-xl text-xs text-blue-800 leading-relaxed">
-                    💡 <strong>Estado:</strong> El mapa se centra automáticamente en el sector operativo para guiar el despacho de tu pedido.
+                <div class="bg-yellow-50 border border-yellow-200 p-3.5 rounded-xl text-xs text-yellow-900 leading-relaxed font-medium">
+                    ⚡ <strong>Aviso para Repartidores:</strong> Los pedidos confirmados enviarán la ruta de entrega automáticamente a tu WhatsApp de turno.
                 </div>
             </div>
         </div>
@@ -100,15 +133,15 @@
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
                 <p class="text-xs text-gray-400 font-medium">Total del pedido</p>
-                <p id="cart-total" class="text-lg font-bold text-emerald-600">$0</p>
+                <p id="cart-total" class="text-lg font-bold text-red-600">$0</p>
             </div>
-            <button onclick="abrirCheckout()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition">
+            <button onclick="abrirCheckout()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition">
                 Ver Carrito 🛒
             </button>
         </div>
     </div>
 
-    <!-- Modal de Checkout / Pago y Envío con Mapa Integrado -->
+    <!-- Modal de Checkout / Datos del Cliente y Envío -->
     <div id="checkout-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
@@ -123,15 +156,15 @@
             <div class="space-y-3">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Tu Nombre</label>
-                    <input type="text" id="cliente-nombre" placeholder="Ej. Juan Pérez" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" id="cliente-nombre" placeholder="Ej. Juan Pérez" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Dirección de Entrega</label>
-                    <input type="text" id="cliente-direccion" placeholder="Ej. Los Lirios #456, Curacaví" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" id="cliente-direccion" placeholder="Ej. Los Lirios #456, Curacaví" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Método de Pago</label>
-                    <select id="cliente-pago" class="w-full border border-gray-200 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <select id="cliente-pago" class="w-full border border-gray-300 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-red-500 outline-none">
                         <option value="Efectivo">Efectivo 💵</option>
                         <option value="Transferencia Bancaria">Transferencia Bancaria 🏦</option>
                         <option value="Tarjeta / Débito (Transbank móvil)">Débito / Redcompra (POS móvil) 💳</option>
@@ -139,18 +172,19 @@
                 </div>
             </div>
 
-            <button onclick="enviarPedidoWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition mt-2">
+            <button onclick="enviarPedidoWhatsApp()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-md transition mt-2">
                 Enviar Pedido por WhatsApp 📲
             </button>
         </div>
     </div>
 
-    <!-- Script Principal con Mapa y Supabase -->
+    <!-- Script Principal con Seguridad de Drivers y Supabase -->
     <script>
         const SUPABASE_URL = 'https://bboowsfigdbafzrgugvp.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_vFh5RhnJ-EywdawMZsLMfw_1dMeBx5R';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        const CLAVE_DRIVER_SECRETA = 'altoke2026'; // Clave de acceso para los repartidores
         let carrito = [];
         let localActual = null;
         let map = null;
@@ -161,6 +195,7 @@
 
         async function cargarLocalesDirecto() {
             document.getElementById('menu-view').classList.add('hidden');
+            document.getElementById('driver-login-view').classList.add('hidden');
             document.getElementById('driver-view').classList.add('hidden');
             document.getElementById('stores-view').classList.remove('hidden');
 
@@ -173,20 +208,20 @@
                 .eq('is_open', true);
 
             if (error || !stores || stores.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500 text-sm">No hay locales abiertos en este momento.</div>`;
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 text-center text-gray-500 text-sm">No hay locales abiertos en este momento.</div>`;
                 return;
             }
 
             container.innerHTML = '';
             stores.forEach(store => {
                 const card = document.createElement('div');
-                card.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center hover:shadow-md transition';
+                card.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition';
                 card.innerHTML = `
                     <div>
                         <h3 class="font-bold text-gray-900 text-base">${store.name}</h3>
-                        <p class="text-xs text-emerald-600 font-semibold mt-1">📍 ${store.comuna || 'Local asociado'}</p>
+                        <p class="text-xs text-red-600 font-semibold mt-1">📍 ${store.comuna || 'Local asociado'}</p>
                     </div>
-                    <button onclick='verMenu(${JSON.stringify(store)})' class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-sm">
+                    <button onclick='verMenu(${JSON.stringify(store)})' class="bg-red-600 hover:bg-red-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-sm">
                         Ver Menú ➔
                     </button>
                 `;
@@ -194,24 +229,36 @@
             });
         }
 
-        function verSeccionDriver() {
+        function verSeccionDriverLogin() {
             document.getElementById('stores-view').classList.add('hidden');
             document.getElementById('menu-view').classList.add('hidden');
+            document.getElementById('driver-view').classList.add('hidden');
             document.getElementById('cart-bar').classList.add('hidden');
-            document.getElementById('driver-view').classList.remove('hidden');
+            document.getElementById('driver-login-view').classList.remove('hidden');
+            document.getElementById('driver-password').value = '';
+        }
 
-            // Inicializar el mapa de Leaflet centrado en Curacaví / María Pinto
+        function verificarClaveDriver() {
+            const ingresada = document.getElementById('driver-password').value.trim();
+            if (ingresada === CLAVE_DRIVER_SECRETA) {
+                document.getElementById('driver-login-view').classList.add('hidden');
+                document.getElementById('driver-view').classList.remove('hidden');
+                inicializarMapa();
+            } else {
+                alert('❌ Clave incorrecta. Solicita la contraseña de driver al administrador.');
+            }
+        }
+
+        function inicializarMapa() {
             setTimeout(() => {
                 if (!map) {
-                    // Coordenadas aproximadas zona Curacaví
                     map = L.map('map').setView([-33.4005, -71.1328], 12);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '© OpenStreetMap contributors'
                     }).addTo(map);
 
-                    // Marcador de referencia de reparto
                     L.marker([-33.4005, -71.1328]).addTo(map)
-                        .bindPopup('<b>Zona Central Altoke</b><br/>Reparto activo en ruta.')
+                        .bindPopup('<b>Central Altoke</b><br/>Base de operaciones.')
                         .openPopup();
                 } else {
                     map.invalidateSize();
@@ -242,20 +289,20 @@
                 .eq('is_available', true);
 
             if (error || !products || products.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500 text-sm">Este local no tiene productos activos.</div>`;
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 text-center text-gray-500 text-sm">Este local no tiene productos activos.</div>`;
                 return;
             }
 
             container.innerHTML = '';
             products.forEach(product => {
                 const card = document.createElement('div');
-                card.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center';
+                card.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex justify-between items-center';
                 card.innerHTML = `
                     <div>
                         <h4 class="font-bold text-gray-900 text-sm">${product.name}</h4>
-                        <p class="text-sm font-semibold text-emerald-600 mt-1">$${Number(product.price).toLocaleString('es-CL')}</p>
+                        <p class="text-sm font-semibold text-red-600 mt-1">$${Number(product.price).toLocaleString('es-CL')}</p>
                     </div>
-                    <button onclick='agregarAlCarrito(${JSON.stringify(product)})' class="bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 font-bold text-xs px-3.5 py-2 rounded-xl transition border border-emerald-100">
+                    <button onclick='agregarAlCarrito(${JSON.stringify(product)})' class="bg-red-50 hover:bg-red-600 hover:text-white text-red-700 font-bold text-xs px-3.5 py-2 rounded-xl transition border border-red-200">
                         Agregar +
                     </button>
                 `;
@@ -312,13 +359,14 @@
             let detalle = carrito.map(i => `• ${i.name} ($${Number(i.price).toLocaleString('es-CL')})`).join('\n');
             let total = carrito.reduce((sum, i) => sum + Number(i.price), 0);
 
+            // Mensaje estructurado completo para el comercio y el driver
             let mensaje = `¡Hola! ⚡ *Nuevo Pedido Altoke*\n\n` +
                           `👤 *Cliente:* ${nombre}\n` +
-                          `📍 *Dirección:* ${direccion}\n` +
-                          `💳 *Pago:* ${metodoPago}\n\n` +
+                          `📍 *Dirección de Entrega:* ${direccion}\n` +
+                          `💳 *Método de Pago:* ${metodoPago}\n\n` +
                           `🛒 *Detalle del pedido:*\n${detalle}\n\n` +
                           `💰 *Total a pagar:* $${total.toLocaleString('es-CL')}\n\n` +
-                          `_Enviado a través de Altoke Delivery_`;
+                          `_Enviado a través de plataforma Altoke Delivery_`;
 
             let telefonoLocal = localActual && localActual.whatsapp_phone ? localActual.whatsapp_phone.replace(/[^0-9]/g, '') : '56912345678';
             let urlWhatsApp = `https://wa.me/${telefonoLocal}?text=${encodeURIComponent(mensaje)}`;
