@@ -3,23 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prueba Altoke</title>
+    <title>Altoke - Delivery Local y Pedidos</title>
+    <!-- Favicon Moderno -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SDK de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded-2xl shadow-lg text-center space-y-4">
-        <h1 class="text-2xl font-bold text-gray-800">⚡ Prueba de Altoke</h1>
-        <p class="text-gray-600 text-sm">Haz clic en el botón para probar si el sistema responde.</p>
-        <button onclick="probarClick()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow transition">
-            Hacer clic aquí
-        </button>
-        <p id="resultado" class="text-emerald-600 font-bold text-lg"></p>
+<body class="bg-gray-50 text-gray-800 font-sans pb-24">
+
+    <!-- Header con Logo Moderno -->
+    <header class="bg-emerald-600 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-black tracking-wider bg-gradient-to-r from-white to-emerald-200 bg-clip-text text-transparent cursor-pointer" onclick="cambiarComuna()">
+                ⚡ ALTOKE
+            </h1>
+            <div class="flex gap-2">
+                <button onclick="verSeccionDriver()" class="text-xs bg-emerald-700 hover:bg-emerald-800 px-3 py-1.5 rounded-full font-semibold transition shadow-sm">
+                    🛵 Drivers
+                </button>
+                <button onclick="cambiarComuna()" id="btn-comuna" class="text-xs bg-emerald-700 hover:bg-emerald-800 px-3 py-1.5 rounded-full font-semibold transition shadow-sm">
+                    Comuna 📍
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="max-w-md mx-auto p-4">
+        
+        <!-- 1. Selector de Comuna -->
+        <div id="selector-comuna-view" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center my-6">
+            <h2 class="text-xl font-bold mb-2 text-gray-900">¿De dónde nos pides hoy?</h2>
+            <p class="text-sm text-gray-500 mb-6">Curacaví y María Pinto conectados al instante.</p>
+            <div class="space-y-3">
+                <button onclick="seleccionarComuna('Curacaví')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 rounded-xl shadow transition">
+                    Curacaví
+                </button>
+                <button onclick="seleccionarComuna('María Pinto')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 rounded-xl shadow transition">
+                    María Pinto
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. Vitrina de Locales -->
+        <div id="stores-view" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="titulo-comuna" class="text-lg font-bold text-gray-800">Locales disponibles</h2>
+                <span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-full">Abiertos ahora</span>
+            </div>
+            <div id="stores-container" class="space-y-3"></div>
+        </div>
+
+        <!-- 3. Menú del Local -->
+        <div id="menu-view" class="hidden">
+            <button onclick="volverALocales()" class="text-sm text-emerald-600 font-semibold mb-3 flex items-center hover:underline">
+                ⬅ Volver a los locales
+            </button>
+            <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl mb-4 shadow-sm">
+                <h2 id="nombre-local-titulo" class="text-xl font-bold text-gray-900"></h2>
+                <p id="whatsapp-local-info" class="text-xs text-emerald-700 mt-0.5 font-medium">Despacho activo Altoke</p>
+            </div>
+            <div id="products-container" class="space-y-3"></div>
+        </div>
+
+        <!-- 4. Vista de Drivers / Repartidores -->
+        <div id="driver-view" class="hidden">
+            <button onclick="cambiarComuna()" class="text-sm text-emerald-600 font-semibold mb-3 flex items-center hover:underline">
+                ⬅ Volver al inicio
+            </button>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-4">
+                <h2 class="text-xl font-bold text-gray-900 mb-1">Panel de Drivers 🛵</h2>
+                <p class="text-xs text-gray-500 mb-4">Pedidos pendientes y mapa de ruta.</p>
+                <div class="bg-blue-50 border border-blue-100 p-3.5 rounded-xl text-xs text-blue-800 mb-4 leading-relaxed">
+                    💡 <strong>Zona de Reparto:</strong> Gestión activa para sectores urbanos y rurales de Curacaví y María Pinto.
+                </div>
+                <div id="driver-orders-container" class="space-y-3">
+                    <p class="text-gray-400 text-center py-6 text-sm">No hay pedidos en ruta por ahora.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Barra Flotante del Carrito -->
+    <div id="cart-bar" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-40">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <p class="text-xs text-gray-400 font-medium">Total del pedido</p>
+                <p id="cart-total" class="text-lg font-bold text-emerald-600">$0</p>
+            </div>
+            <button onclick="abrirCheckout()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition">
+                Ver Carrito 🛒
+            </button>
+        </div>
     </div>
 
+    <!-- Modal de Checkout / Pago y Envío -->
+    <div id="checkout-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-gray-900">Finalizar Pedido</h3>
+                <button onclick="cerrarCheckout()" class="text-gray-400 hover:text-gray-600 font-bold text-xl px-2">✕</button>
+            </div>
+            
+            <div id="cart-items-summary" class="space-y-2 max-h-40 overflow-y-auto border-b pb-3 text-sm">
+                <!-- Resumen de items -->
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Tu Nombre</label>
+                    <input type="text" id="cliente-nombre" placeholder="Ej. Juan Pérez" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Dirección de Entrega</label>
+                    <input type="text" id="cliente-direccion" placeholder="Ej. Los Lirios #456, Curacaví" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Método de Pago</label>
+                    <select id="cliente-pago" class="w-full border border-gray-200 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="Efectivo">Efectivo 💵</option>
+                        <option value="Transferencia Bancaria">Transferencia Bancaria 🏦</option>
+                        <option value="Tarjeta / Débito (Transbank móvil)">Débito / Redcompra (POS móvil) 💳</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="enviarPedidoWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition mt-2">
+                Enviar Pedido por WhatsApp 📲
+            </button>
+        </div>
+    </div>
+
+    <!-- Script Principal -->
     <script>
-        function probarClick() {
-            document.getElementById('resultado').innerText = "¡Funciona perfecto! 🚀";
-            alert("¡El sistema responde correctamente!");
+        const SUPABASE_URL = 'https://bboowsfigdbafzrgugvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vFh5RhnJ-EywdawMZsLMfw_1dMeBx5R';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let comunaActual = localStorage.getItem('altoke_comuna');
+        let carrito = [];
+        let localActual = null;
+
+        window.onload = function() {
+            if (comunaActual) {
+                mostrarLocales(comunaActual);
+            }
+        }
+
+        function seleccionarComuna(comuna) {
+            comunaActual = comuna;
+            localStorage.setItem('altoke_comuna', comuna);
+            document.getElementById('driver-view').classList.add('hidden');
+            mostrarLocales(comuna);
+        }
+
+        function cambiarComuna() {
+            localStorage.removeItem('altoke_comuna');
+            carrito = [];
+            actualizarBarraCarrito();
+            document.getElementById('stores-view').classList.add('hidden');
+            document.getElementById('menu-view').classList.add('hidden');
+            document.getElementById('driver-view').classList.add('hidden');
+            document.getElementById('selector-comuna-view').classList.remove('hidden');
+            document.getElementById('cart-bar').classList.add('hidden');
+            document.getElementById('btn-comuna').innerText = "Comuna 📍";
+        }
+
+        function verSeccionDriver() {
+            document.getElementById('selector-comuna-view').classList.add('hidden');
+            document.getElementById('stores-view').classList.add('hidden');
+            document.getElementById('menu-view').classList.add('hidden');
+            document.getElementById('cart-bar').classList.add('hidden');
+            document.getElementById('driver-view').classList.remove('hidden');
+        }
+
+        function volverALocales() {
+            document.getElementById('menu-view').classList.add('hidden');
+            document.getElementById('stores-view').classList.remove('hidden');
+            if(carrito.length > 0) document.getElementById('cart-bar').classList.remove('hidden');
+        }
+
+        async function mostrarLocales(comuna) {
+            document.getElementById('selector-comuna-view').classList.add('hidden');
+            document.getElementById('driver-view').classList.add('hidden');
+            document.getElementById('stores-view').classList.remove('hidden');
+            document.getElementById('titulo-comuna').innerText = `Locales en ${comuna}`;
+            document.getElementById('btn-comuna').innerText = comuna + " 📍";
+
+            const container = document.getElementById('stores-container');
+            container.innerHTML = `<p class="text-gray-400 text-center py-8 text-sm">Buscando locales...</p>`;
+
+            const { data: stores, error } = await supabaseClient
+                .from('stores')
+                .select('*')
+                .eq('comuna', comuna)
+                .eq('is_open', true);
+
+            if (error || !stores || stores.length === 0) {
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500 text-sm">Aún no hay locales registrados en ${comuna}.</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            stores.forEach(store => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center hover:shadow-md transition';
+                card.innerHTML = `
+                    <div>
+                        <h3 class="font-bold text-gray-900 text-base">${store.name}</h3>
+                        <p class="text-xs text-emerald-600 font-semibold mt-1">● Abierto ahora</p>
+                    </div>
+                    <button onclick='verMenu(${JSON.stringify(store)})' class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-sm">
+                        Ver Menú ➔
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function verMenu(store) {
+            localActual = store;
+            document.getElementById('stores-view').classList.add('hidden');
+            document.getElementById('menu-view').classList.remove('hidden');
+            document.getElementById('nombre-local-titulo').innerText = store.name;
+            document.getElementById('whatsapp-local-info').innerText = `WhatsApp pedidos: ${store.whatsapp_phone || 'Disponible'}`;
+
+            const container = document.getElementById('products-container');
+            container.innerHTML = `<p class="text-gray-400 text-center py-8 text-sm">Cargando menú...</p>`;
+
+            const { data: products, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .eq('store_id', store.id)
+                .eq('is_available', true);
+
+            if (error || !products || products.length === 0) {
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500 text-sm">Este local no tiene productos activos.</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center';
+                card.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm">${product.name}</h4>
+                        <p class="text-sm font-semibold text-emerald-600 mt-1">$${Number(product.price).toLocaleString('es-CL')}</p>
+                    </div>
+                    <button onclick='agregarAlCarrito(${JSON.stringify(product)})' class="bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 font-bold text-xs px-3.5 py-2 rounded-xl transition border border-emerald-100">
+                        Agregar +
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function agregarAlCarrito(product) {
+            carrito.push(product);
+            actualizarBarraCarrito();
+        }
+
+        function actualizarBarraCarrito() {
+            const cartBar = document.getElementById('cart-bar');
+            if (carrito.length === 0) {
+                cartBar.classList.add('hidden');
+                return;
+            }
+            cartBar.classList.remove('hidden');
+            const total = carrito.reduce((sum, item) => sum + Number(item.price), 0);
+            document.getElementById('cart-total').innerText = `$${total.toLocaleString('es-CL')}`;
+        }
+
+        function abrirCheckout() {
+            const container = document.getElementById('cart-items-summary');
+            container.innerHTML = '';
+            carrito.forEach((item) => {
+                container.innerHTML += `
+                    <div class="flex justify-between items-center text-xs text-gray-700 py-1">
+                        <span>${item.name}</span>
+                        <span class="font-semibold">$${Number(item.price).toLocaleString('es-CL')}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            document.getElementById('cart-bar').classList.add('hidden');
+        }
+
+        function cerrarCheckout() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+            if(carrito.length > 0) document.getElementById('cart-bar').classList.remove('hidden');
+        }
+
+        function enviarPedidoWhatsApp() {
+            const nombre = document.getElementById('cliente-nombre').value.trim();
+            const direccion = document.getElementById('cliente-direccion').value.trim();
+            const metodoPago = document.getElementById('cliente-pago').value;
+
+            if(!nombre || !direccion) {
+                alert('Por favor ingresa tu nombre y dirección para el despacho.');
+                return;
+            }
+
+            let detalle = carrito.map(i => `• ${i.name} ($${Number(i.price).toLocaleString('es-CL')})`).join('\n');
+            let total = carrito.reduce((sum, i) => sum + Number(i.price), 0);
+
+            let mensaje = `¡Hola! ⚡ *Nuevo Pedido Altoke*\n\n` +
+                          `👤 *Cliente:* `${nombre}\n` +
+                          `📍 *Dirección:* ${direccion}\n` +
+                          `💳 *Pago:* ${metodoPago}\n\n` +
+                          `🛒 *Detalle del pedido:*\n${detalle}\n\n` +
+                          `💰 *Total a pagar:* $${total.toLocaleString('es-CL')}\n\n` +
+                          `_Enviado a través de Altoke Delivery_`;
+
+            let telefonoLocal = localActual && localActual.whatsapp_phone ? localActual.whatsapp_phone.replace(/[^0-9]/g, '') : '56912345678';
+            let urlWhatsApp = `https://wa.me/${telefonoLocal}?text=${encodeURIComponent(mensaje)}`;
+            
+            window.open(urlWhatsApp, '_blank');
+            
+            cerrarCheckout();
+            carrito = [];
+            actualizarBarraCarrito();
+            cambiarComuna();
+            alert('¡Pedido generado con éxito! Se abrió WhatsApp para enviarlo al comercio.');
         }
     </script>
 </body>
