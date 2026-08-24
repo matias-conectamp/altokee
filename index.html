@@ -10,7 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SDK de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Leaflet CSS (Para el mapa interactivo) -->
+    <!-- Leaflet CSS (Para mapas interactivos) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -29,11 +29,14 @@
                     <p class="text-[10px] text-white font-bold tracking-wide">CURACAVÍ & MARÍA PINTO</p>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="verSeccionDriverLogin()" class="text-xs bg-yellow-400 hover:bg-yellow-500 text-red-900 px-3 py-1.5 rounded-full font-bold transition shadow-sm">
+            <div class="flex gap-1.5">
+                <button onclick="verSeccionComercioLogin()" class="text-[11px] bg-red-700 hover:bg-red-800 text-white px-2.5 py-1.5 rounded-full font-semibold transition shadow-sm">
+                    🏪 Locales
+                </button>
+                <button onclick="verSeccionDriverLogin()" class="text-[11px] bg-yellow-400 hover:bg-yellow-500 text-red-900 px-2.5 py-1.5 rounded-full font-bold transition shadow-sm">
                     🛵 Drivers
                 </button>
-                <button onclick="cargarLocalesDirecto()" class="text-xs bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded-full font-semibold transition shadow-sm">
+                <button onclick="cargarLocalesDirecto()" class="text-[11px] bg-red-700 hover:bg-red-800 text-white px-2.5 py-1.5 rounded-full font-semibold transition shadow-sm">
                     Inicio 🏠
                 </button>
             </div>
@@ -45,7 +48,7 @@
         
         <!-- 1. Vitrina General de Locales -->
         <div id="stores-view">
-            <!-- Banner de Anuncio / Auspicio Superior -->
+            <!-- Banner de Auspicio Superior -->
             <div class="bg-gradient-to-r from-yellow-400 to-amber-500 border border-yellow-500 p-4 rounded-2xl mb-4 shadow-md text-red-900 text-center relative overflow-hidden">
                 <span class="absolute top-1 right-2 text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Auspicio</span>
                 <h3 class="text-sm font-black uppercase tracking-wide">🔥 ¡Patrocina tu negocio aquí!</h3>
@@ -66,7 +69,7 @@
                 <p class="text-gray-400 text-center py-8 text-sm">Cargando locales...</p>
             </div>
 
-            <!-- Segundo Espacio de Auspicio Inferior -->
+            <!-- Auspicio Inferior -->
             <div class="bg-white border-2 border-dashed border-yellow-400 p-3 rounded-2xl mt-6 text-center shadow-sm">
                 <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Espacio Publicitario disponible</p>
                 <p class="text-xs font-semibold text-gray-600 mt-0.5">Anuncia tu marca en esta sección 📞</p>
@@ -85,7 +88,42 @@
             <div id="products-container" class="space-y-3"></div>
         </div>
 
-        <!-- 3. Vista de Login de Drivers -->
+        <!-- 3. Pantalla de Seguimiento del Cliente (Mapa, Driver asignado y Contacto) -->
+        <div id="client-tracking-view" class="hidden space-y-4">
+            <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl shadow-sm text-center space-y-2">
+                <div class="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold shadow">✓</div>
+                <h2 class="text-xl font-bold text-emerald-900">¡Pedido Confirmado!</h2>
+                <p class="text-xs text-emerald-700">Tu pedido va en camino a tu dirección.</p>
+            </div>
+
+            <!-- Tarjeta del Repartidor Asignado -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center font-bold text-lg">🛵</div>
+                    <div>
+                        <p class="text-xs text-gray-400 font-medium">Repartidor Asignado</p>
+                        <h4 id="driver-nombre-asignado" class="font-bold text-gray-900 text-sm">Carlos "El Rayo" Soto</h4>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <a id="driver-whatsapp-btn" href="#" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-white p-2.5 rounded-xl text-xs font-bold shadow transition flex items-center justify-center">
+                        💬 WhatsApp
+                    </a>
+                </div>
+            </div>
+
+            <!-- Mapa de Seguimiento -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 space-y-2">
+                <h3 class="text-xs font-bold text-gray-600 uppercase">Ubicación del Delivery en Ruta</h3>
+                <div id="tracking-map" class="w-full h-64 rounded-xl border border-gray-200 z-10"></div>
+            </div>
+
+            <button onclick="cargarLocalesDirecto()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow transition">
+                Volver al Inicio 🏠
+            </button>
+        </div>
+
+        <!-- 4. Vista de Login de Drivers -->
         <div id="driver-login-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver al inicio
@@ -93,17 +131,15 @@
             <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 text-center space-y-4 my-6">
                 <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">🛵</div>
                 <h2 class="text-xl font-bold text-gray-900">Acceso de Repartidores</h2>
-                <p class="text-xs text-gray-500">Ingresa tu clave de acceso para ver los pedidos en ruta y mapas.</p>
-                
-                <input type="password" id="driver-password" placeholder="Ingresa tu clave secreta" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-red-500 outline-none">
-                
+                <p class="text-xs text-gray-500">Ingresa tu clave secreta para ver los pedidos.</p>
+                <input type="password" id="driver-password" placeholder="Clave (altoke2026)" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-red-500 outline-none">
                 <button onclick="verificarClaveDriver()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow transition">
                     Ingresar al Panel 🚀
                 </button>
             </div>
         </div>
 
-        <!-- 4. Vista Privada de Drivers / Repartidores con Mapa -->
+        <!-- 5. Vista Privada de Drivers -->
         <div id="driver-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Salir del panel
@@ -111,17 +147,52 @@
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mb-4 space-y-4">
                 <div>
                     <h2 class="text-xl font-bold text-red-950 mb-1">Panel de Drivers 🛵</h2>
-                    <p class="text-xs text-gray-500">Zona operativa activa en Curacaví y María Pinto.</p>
+                    <p class="text-xs text-gray-500">Pedidos activos en Curacaví y María Pinto.</p>
                 </div>
-                
-                <!-- Contenedor del Mapa -->
-                <div class="space-y-1">
-                    <label class="block text-xs font-semibold text-gray-600">Mapa de Cobertura en Vivo</label>
-                    <div id="map" class="w-full h-64 rounded-xl border border-gray-300 z-10 shadow-inner"></div>
+                <div id="driver-orders-list" class="space-y-3">
+                    <div class="border border-gray-200 p-3.5 rounded-xl space-y-2 bg-gray-50">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded">En Ruta</span>
+                            <span class="text-xs text-gray-500">Hace 5 min</span>
+                        </div>
+                        <p class="text-xs font-bold text-gray-800">Cliente: Juan Pérez</p>
+                        <p class="text-xs text-gray-600">Dirección: Los Lirios #456, Curacaví</p>
+                        <a href="https://wa.me/56912345678?text=Hola,%20voy%20en%20camino%20con%20tu%20pedido%20Altoke" target="_blank" class="block w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-lg transition">
+                            Contactar Cliente por WhatsApp 📲
+                        </a>
+                    </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="bg-yellow-50 border border-yellow-200 p-3.5 rounded-xl text-xs text-yellow-900 leading-relaxed font-medium">
-                    ⚡ <strong>Aviso para Repartidores:</strong> Los pedidos confirmados enviarán la ruta de entrega automáticamente a tu WhatsApp de turno.
+        <!-- 6. Vista de Login de Comercios -->
+        <div id="comercio-login-view" class="hidden">
+            <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
+                ⬅ Volver al inicio
+            </button>
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 text-center space-y-4 my-6">
+                <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">🏪</div>
+                <h2 class="text-xl font-bold text-gray-900">Portal de Comercios</h2>
+                <p class="text-xs text-gray-500">Gestiona el stock y estado de tus productos.</p>
+                <input type="text" id="comercio-nombre-ingreso" placeholder="Nombre de tu local (Ej: Minimarket)" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-red-500 outline-none">
+                <button onclick="ingresarPortalComercio()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow transition">
+                    Ver mis Productos 📋
+                </button>
+            </div>
+        </div>
+
+        <!-- 7. Panel de Control de Stock del Comercio -->
+        <div id="comercio-stock-view" class="hidden">
+            <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
+                ⬅ Salir del portal
+            </button>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
+                <div>
+                    <h2 id="titulo-comercio-panel" class="text-xl font-bold text-red-950">Gestión de Stock</h2>
+                    <p class="text-xs text-gray-500">Activa o desactiva productos según disponibilidad.</p>
+                </div>
+                <div id="comercio-products-stock-list" class="space-y-3">
+                    <!-- Se cargan dinámicamente -->
                 </div>
             </div>
         </div>
@@ -141,22 +212,22 @@
         </div>
     </div>
 
-    <!-- Modal de Checkout / Datos del Cliente y Envío -->
+    <!-- Modal de Checkout / Datos del Cliente -->
     <div id="checkout-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="text-lg font-bold text-gray-900">Finalizar Pedido</h3>
                 <button onclick="cerrarCheckout()" class="text-gray-400 hover:text-gray-600 font-bold text-xl px-2">✕</button>
             </div>
-            
-            <div id="cart-items-summary" class="space-y-2 max-h-32 overflow-y-auto border-b pb-3 text-sm">
-                <!-- Resumen de items -->
-            </div>
-
+            <div id="cart-items-summary" class="space-y-2 max-h-32 overflow-y-auto border-b pb-3 text-sm"></div>
             <div class="space-y-3">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Tu Nombre</label>
                     <input type="text" id="cliente-nombre" placeholder="Ej. Juan Pérez" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Tu Teléfono (para el Driver)</label>
+                    <input type="text" id="cliente-telefono" placeholder="Ej. +56912345678" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Dirección de Entrega</label>
@@ -171,23 +242,22 @@
                     </select>
                 </div>
             </div>
-
             <button onclick="enviarPedidoWhatsApp()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-md transition mt-2">
                 Enviar Pedido por WhatsApp 📲
             </button>
         </div>
     </div>
 
-    <!-- Script Principal con Seguridad de Drivers y Supabase -->
+    <!-- Script Principal con Mapeo y Gestión Completa -->
     <script>
         const SUPABASE_URL = 'https://bboowsfigdbafzrgugvp.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_vFh5RhnJ-EywdawMZsLMfw_1dMeBx5R';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const CLAVE_DRIVER_SECRETA = 'altoke2026'; // Clave de acceso para los repartidores
+        const CLAVE_DRIVER_SECRETA = 'altoke2026';
         let carrito = [];
         let localActual = null;
-        let map = null;
+        let trackingMap = null;
 
         window.onload = function() {
             cargarLocalesDirecto();
@@ -197,6 +267,9 @@
             document.getElementById('menu-view').classList.add('hidden');
             document.getElementById('driver-login-view').classList.add('hidden');
             document.getElementById('driver-view').classList.add('hidden');
+            document.getElementById('comercio-login-view').classList.add('hidden');
+            document.getElementById('comercio-stock-view').classList.add('hidden');
+            document.getElementById('client-tracking-view').classList.add('hidden');
             document.getElementById('stores-view').classList.remove('hidden');
 
             const container = document.getElementById('stores-container');
@@ -230,40 +303,105 @@
         }
 
         function verSeccionDriverLogin() {
-            document.getElementById('stores-view').classList.add('hidden');
-            document.getElementById('menu-view').classList.add('hidden');
-            document.getElementById('driver-view').classList.add('hidden');
-            document.getElementById('cart-bar').classList.add('hidden');
+            ocultarTodo();
             document.getElementById('driver-login-view').classList.remove('hidden');
             document.getElementById('driver-password').value = '';
         }
 
         function verificarClaveDriver() {
-            const ingresada = document.getElementById('driver-password').value.trim();
-            if (ingresada === CLAVE_DRIVER_SECRETA) {
-                document.getElementById('driver-login-view').classList.add('hidden');
+            if (document.getElementById('driver-password').value.trim() === CLAVE_DRIVER_SECRETA) {
+                ocultarTodo();
                 document.getElementById('driver-view').classList.remove('hidden');
-                inicializarMapa();
             } else {
-                alert('❌ Clave incorrecta. Solicita la contraseña de driver al administrador.');
+                alert('❌ Clave incorrecta.');
             }
         }
 
-        function inicializarMapa() {
-            setTimeout(() => {
-                if (!map) {
-                    map = L.map('map').setView([-33.4005, -71.1328], 12);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '© OpenStreetMap contributors'
-                    }).addTo(map);
+        function verSeccionComercioLogin() {
+            ocultarTodo();
+            document.getElementById('comercio-login-view').classList.remove('hidden');
+            document.getElementById('comercio-nombre-ingreso').value = '';
+        }
 
-                    L.marker([-33.4005, -71.1328]).addTo(map)
-                        .bindPopup('<b>Central Altoke</b><br/>Base de operaciones.')
-                        .openPopup();
-                } else {
-                    map.invalidateSize();
-                }
-            }, 200);
+        async function ingresarPortalComercio() {
+            const nombreLocal = document.getElementById('comercio-nombre-ingreso').value.trim();
+            if(!nombreLocal) {
+                alert('Ingresa el nombre de tu local.');
+                return;
+            }
+
+            const { data: stores, error } = await supabaseClient
+                .from('stores')
+                .select('*')
+                .ilike('name', `%${nombreLocal}%`)
+                .limit(1);
+
+            if(error || !stores || stores.length === 0) {
+                alert('No se encontró un local con ese nombre.');
+                return;
+            }
+
+            const store = stores[0];
+            document.getElementById('titulo-comercio-panel').innerText = `Stock: ${store.name}`;
+            ocultarTodo();
+            document.getElementById('comercio-stock-view').classList.remove('hidden');
+            cargarStockProductos(store.id);
+        }
+
+        async function cargarStockProductos(storeId) {
+            const container = document.getElementById('comercio-products-stock-list');
+            container.innerHTML = `<p class="text-gray-400 text-center py-4 text-xs">Cargando productos...</p>`;
+
+            const { data: products, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .eq('store_id', storeId);
+
+            if(error || !products || products.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 text-center text-xs">No hay productos registrados.</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            products.forEach(prod => {
+                const item = document.createElement('div');
+                item.className = 'flex justify-between items-center p-3 bg-gray-50 border border-gray-200 rounded-xl';
+                item.innerHTML = `
+                    <div>
+                        <p class="font-bold text-xs text-gray-800">${prod.name}</p>
+                        <p class="text-xs text-red-600 font-semibold">$${Number(prod.price).toLocaleString('es-CL')}</p>
+                    </div>
+                    <button onclick="toggleStock(${prod.id}, ${prod.is_available}, ${storeId})" class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${prod.is_available ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-red-100 text-red-800 hover:bg-red-200'}">
+                        ${prod.is_available ? '● Disponible' : '✕ Agotado'}
+                    </button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        async function toggleStock(productId, estadoActual, storeId) {
+            const nuevoEstado = !estadoActual;
+            const { error } = await supabaseClient
+                .from('products')
+                .update({ is_available: nuevoEstado })
+                .eq('id', productId);
+
+            if(error) {
+                alert('Error al actualizar stock');
+            } else {
+                cargarStockProductos(storeId);
+            }
+        }
+
+        function ocultarTodo() {
+            document.getElementById('stores-view').classList.add('hidden');
+            document.getElementById('menu-view').classList.add('hidden');
+            document.getElementById('driver-login-view').classList.add('hidden');
+            document.getElementById('driver-view').classList.add('hidden');
+            document.getElementById('comercio-login-view').classList.add('hidden');
+            document.getElementById('comercio-stock-view').classList.add('hidden');
+            document.getElementById('client-tracking-view').classList.add('hidden');
+            document.getElementById('cart-bar').classList.add('hidden');
         }
 
         function volverALocales() {
@@ -289,7 +427,7 @@
                 .eq('is_available', true);
 
             if (error || !products || products.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 text-center text-gray-500 text-sm">Este local no tiene productos activos.</div>`;
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 text-center text-gray-500 text-sm">Este local no tiene productos activos (sin stock).</div>`;
                 return;
             }
 
@@ -348,25 +486,26 @@
 
         function enviarPedidoWhatsApp() {
             const nombre = document.getElementById('cliente-nombre').value.trim();
+            const telefono = document.getElementById('cliente-telefono').value.trim();
             const direccion = document.getElementById('cliente-direccion').value.trim();
             const metodoPago = document.getElementById('cliente-pago').value;
 
-            if(!nombre || !direccion) {
-                alert('Por favor ingresa tu nombre y dirección para el despacho.');
+            if(!nombre || !direccion || !telefono) {
+                alert('Por favor ingresa tu nombre, teléfono y dirección.');
                 return;
             }
 
             let detalle = carrito.map(i => `• ${i.name} ($${Number(i.price).toLocaleString('es-CL')})`).join('\n');
             let total = carrito.reduce((sum, i) => sum + Number(i.price), 0);
 
-            // Mensaje estructurado completo para el comercio y el driver
             let mensaje = `¡Hola! ⚡ *Nuevo Pedido Altoke*\n\n` +
                           `👤 *Cliente:* ${nombre}\n` +
-                          `📍 *Dirección de Entrega:* ${direccion}\n` +
-                          `💳 *Método de Pago:* ${metodoPago}\n\n` +
-                          `🛒 *Detalle del pedido:*\n${detalle}\n\n` +
-                          `💰 *Total a pagar:* $${total.toLocaleString('es-CL')}\n\n` +
-                          `_Enviado a través de plataforma Altoke Delivery_`;
+                          `📞 *Teléfono:* ${telefono}\n` +
+                          `📍 *Dirección:* ${direccion}\n` +
+                          `💳 *Pago:* ${metodoPago}\n\n` +
+                          `🛒 *Detalle:*\n${detalle}\n\n` +
+                          `💰 *Total:* $${total.toLocaleString('es-CL')}\n\n` +
+                          `_Enviado vía Altoke_`;
 
             let telefonoLocal = localActual && localActual.whatsapp_phone ? localActual.whatsapp_phone.replace(/[^0-9]/g, '') : '56912345678';
             let urlWhatsApp = `https://wa.me/${telefonoLocal}?text=${encodeURIComponent(mensaje)}`;
@@ -376,8 +515,35 @@
             cerrarCheckout();
             carrito = [];
             actualizarBarraCarrito();
-            cargarLocalesDirecto();
-            alert('¡Pedido generado con éxito! Se abrió WhatsApp para enviarlo al comercio.');
+            
+            // Mostrar pantalla de seguimiento al cliente con datos del Driver
+            mostrarPantallaSeguimientoCliente(nombre, telefono);
+        }
+
+        function mostrarPantallaSeguimientoCliente(nombreCliente, telCliente) {
+            ocultarTodo();
+            document.getElementById('client-tracking-view').classList.remove('hidden');
+            
+            // Configurar botón de WhatsApp para contactar al driver asignado de turno
+            const driverTel = "56912345678"; // Número de ejemplo del driver de turno
+            const textoDriver = `Hola Driver, soy ${nombreCliente} (${telCliente}). ¿Cómo va mi pedido Altoke en ruta?`;
+            document.getElementById('driver-whatsapp-btn').href = `https://wa.me/${driverTel}?text=${encodeURIComponent(textoDriver)}`;
+
+            // Inicializar mapa de seguimiento
+            setTimeout(() => {
+                if (!trackingMap) {
+                    trackingMap = L.map('tracking-map').setView([-33.4005, -71.1328], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap'
+                    }).addTo(trackingMap);
+
+                    L.marker([-33.4005, -71.1328]).addTo(trackingMap)
+                        .bindPopup('<b>Driver en ruta hacia tu dirección</b>')
+                        .openPopup();
+                } else {
+                    trackingMap.invalidateSize();
+                }
+            }, 300);
         }
     </script>
 </body>
