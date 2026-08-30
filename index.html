@@ -405,14 +405,14 @@
             const container = document.getElementById('products-container');
             container.innerHTML = `<p class="text-gray-400 text-center py-8 text-sm">Cargando menú...</p>`;
 
+            // Consulta robusta que trae los productos asociados al local
             const { data: products, error } = await supabaseClient
                 .from('products')
                 .select('*')
-                .eq('store_id', store.id)
-                .eq('is_available', true);
+                .eq('store_id', store.id);
 
             if (error || !products || products.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 text-center text-gray-500 text-sm">Este local no tiene productos disponibles.</div>`;
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 text-center text-gray-500 text-sm">Este local no tiene productos registrados.</div>`;
                 return;
             }
 
