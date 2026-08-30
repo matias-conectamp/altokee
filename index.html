@@ -43,6 +43,18 @@
         
         <!-- 1. Vitrina General de Locales -->
         <div id="stores-view">
+            <!-- Banner Club de Beneficios / Suscripción -->
+            <div class="bg-gradient-to-br from-red-700 via-red-600 to-amber-600 border border-red-500 p-5 rounded-2xl mb-4 shadow-lg text-white relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 text-7xl opacity-20">👑</div>
+                <span class="text-[9px] bg-yellow-400 text-red-950 px-2 py-0.5 rounded-full font-black uppercase tracking-wider">Membresía Exclusiva</span>
+                <h3 class="text-base font-black uppercase tracking-wide mt-2">⭐ Club Altoke Pro ($2.990/mes)</h3>
+                <p class="text-xs text-red-100 mt-1 font-medium leading-relaxed">⚡ Prioridad absoluta en horas punta, despacho gratis y participación en sorteos mensuales de productos.</p>
+                <button onclick="abrirSuscripcionModal()" class="mt-3.5 w-full bg-yellow-400 hover:bg-yellow-300 text-red-950 font-black text-xs py-2.5 rounded-xl shadow transition tracking-wide">
+                    ¡Unirme al Club Ahora! 🚀
+                </button>
+            </div>
+
+            <!-- Banner de Auspicio Superior -->
             <div class="bg-gradient-to-r from-yellow-400 to-amber-500 border border-yellow-500 p-4 rounded-2xl mb-4 shadow-md text-red-900 text-center relative overflow-hidden">
                 <span class="absolute top-1 right-2 text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Auspicio</span>
                 <h3 class="text-sm font-black uppercase tracking-wide">🔥 ¡Patrocina tu negocio aquí!</h3>
@@ -67,15 +79,21 @@
                 <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Espacio Publicitario disponible</p>
                 <p class="text-xs font-semibold text-gray-600 mt-0.5">Anuncia tu marca en esta sección 📞</p>
             </div>
+
+            <!-- Enlace Legal Footer -->
+            <div class="text-center pt-4 pb-2">
+                <button onclick="abrirModalLegal()" class="text-[11px] text-gray-500 hover:text-red-600 font-semibold underline transition">
+                    Términos, Condiciones y Políticas de Privacidad 📄
+                </button>
+            </div>
         </div>
 
-        <!-- 2. Menú del Local (Con Portada / Banner) -->
+        <!-- 2. Menú del Local -->
         <div id="menu-view" class="hidden">
             <button onclick="volverALocales()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver a los locales
             </button>
             
-            <!-- Imagen de Portada del Local -->
             <div class="relative rounded-2xl overflow-hidden shadow-md mb-4 border border-gray-200 bg-white">
                 <img id="local-banner-img" src="" alt="Portada Local" class="w-full h-36 object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
@@ -194,6 +212,56 @@
 
     </main>
 
+    <!-- Modal de Términos y Condiciones / Legal -->
+    <div id="modal-legal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-base font-bold text-gray-900">⚖️ Términos y Condiciones</h3>
+                <button onclick="cerrarModalLegal()" class="text-gray-400 hover:text-gray-600 font-bold text-xl px-2">✕</button>
+            </div>
+            <div class="text-xs text-gray-600 space-y-3 leading-relaxed">
+                <p><b>1. Sobre el Servicio:</b> Altoke es una plataforma tecnológica de intermediación digital que conecta a usuarios con comercios locales independientes y repartidores en las comunas de Curacaví y María Pinto.</p>
+                <p><b>2. Responsabilidad de Productos:</b> Los comercios asociados son los únicos responsables de la calidad, frescura, precios y stock de los productos ofrecidos (tales como Helados Luky Lu).</p>
+                <p><b>3. Pagos y Entregas:</b> Los pagos se efectúan según el método elegido por el cliente (efectivo, transferencia o POS móvil). Altoke no almacena datos bancarios ni de tarjetas de crédito.</p>
+                <p><b>4. Geolocalización y Privacidad:</b> Al utilizar el sistema de mapas y GPS, el usuario autoriza el uso temporal de su ubicación únicamente con el fin de coordinar la ruta de entrega con el repartidor asignado.</p>
+                <p><b>5. Membresía Club Pro:</b> La suscripción mensual al Club Altoke Pro otorga beneficios preferenciales y despachos bonificados bajo los términos vigentes anunciados en la plataforma.</p>
+            </div>
+            <button onclick="cerrarModalLegal()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-xl text-xs transition">
+                Entendido y de Acuerdo 👍
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Suscripción al Club Pro -->
+    <div id="suscripcion-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-red-900">👑 Club Altoke Pro ($2.990/mes)</h3>
+                <button onclick="cerrarSuscripcionModal()" class="text-gray-400 hover:text-gray-600 font-bold text-xl px-2">✕</button>
+            </div>
+            <div class="bg-red-50 p-4 rounded-2xl border border-red-200 text-xs text-red-900 space-y-2 font-medium">
+                <p>✨ **Beneficios exclusivos del Club:**</p>
+                <p>• ⚡ **Prioridad en horas punta:** Tus pedidos salen primero que el resto.</p>
+                <p>• 🎁 **Sorteos mensuales:** Participación en rifas de productos y vales de compra.</p>
+                <p>• 🛵 **Despacho gratis ilimitado** en todas tus compras de la red.</p>
+                <p>• 🍨 **Acceso a ofertas secretas** y precios preferenciales en Helados Luky Lu.</p>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Tu Nombre</label>
+                    <input type="text" id="sub-nombre" placeholder="Ej. María González" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Tu Teléfono / WhatsApp</label>
+                    <input type="text" id="sub-telefono" placeholder="Ej. +56912345678" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                </div>
+            </div>
+            <button onclick="enviarSuscripcionWhatsApp()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-md transition mt-2">
+                Activar Membresía Pro por WhatsApp 📲
+            </button>
+        </div>
+    </div>
+
     <!-- Barra Flotante del Carrito -->
     <div id="cart-bar" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-40">
         <div class="max-w-md mx-auto flex justify-between items-center">
@@ -256,6 +324,14 @@
                 <div id="instruccion-pago-box" class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-900">
                     💵 Pagarás en efectivo al momento de recibir tu pedido.
                 </div>
+
+                <!-- Casilla de Aceptación de Términos -->
+                <div class="flex items-start gap-2 pt-1">
+                    <input type="checkbox" id="acepto-terminos" class="mt-0.5 h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500">
+                    <label for="acepto-terminos" class="text-xs text-gray-600 leading-tight">
+                        Acepto los <span onclick="abrirModalLegal()" class="text-red-600 underline cursor-pointer font-semibold">Términos, Condiciones y Políticas de Privacidad</span> de Altoke.
+                    </label>
+                </div>
             </div>
 
             <button onclick="enviarPedidoWhatsApp()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-md transition mt-2">
@@ -315,6 +391,42 @@
                 `;
                 container.appendChild(card);
             });
+        }
+
+        function abrirModalLegal() {
+            document.getElementById('modal-legal').classList.remove('hidden');
+        }
+
+        function cerrarModalLegal() {
+            document.getElementById('modal-legal').classList.add('hidden');
+        }
+
+        function abrirSuscripcionModal() {
+            document.getElementById('suscripcion-modal').classList.remove('hidden');
+        }
+
+        function cerrarSuscripcionModal() {
+            document.getElementById('suscripcion-modal').classList.add('hidden');
+        }
+
+        function enviarSuscripcionWhatsApp() {
+            const nombre = document.getElementById('sub-nombre').value.trim();
+            const telefono = document.getElementById('sub-telefono').value.trim();
+
+            if(!nombre || !telefono) {
+                alert('Por favor ingresa tu nombre y teléfono.');
+                return;
+            }
+
+            let mensaje = `¡Hola! 👑 *Quiero unirme al Club Altoke Pro*\n\n` +
+                          `👤 *Nombre:* ${nombre}\n` +
+                          `📞 *Teléfono:* ${telefono}\n` +
+                          `💎 *Plan:* Membresía Pro ($2.990/mes)\n\n` +
+                          `_Por favor envíeme los datos para realizar la transferencia de activación._`;
+
+            let urlWhatsApp = `https://wa.me/56912345678?text=${encodeURIComponent(mensaje)}`;
+            window.open(urlWhatsApp, '_blank');
+            cerrarSuscripcionModal();
         }
 
         function verSeccionDriverLogin() {
@@ -430,8 +542,6 @@
             document.getElementById('menu-view').classList.remove('hidden');
             document.getElementById('nombre-local-titulo').innerText = store.name;
             document.getElementById('whatsapp-local-info').innerText = `WhatsApp pedidos: ${store.whatsapp_phone || 'Disponible'}`;
-            
-            // Asigna la foto de banner del local o una por defecto si no tiene
             document.getElementById('local-banner-img').src = store.banner_url || 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=800';
 
             const container = document.getElementById('products-container');
@@ -496,6 +606,7 @@
             renderizarResumenCarrito();
             document.getElementById('checkout-modal').classList.remove('hidden');
             document.getElementById('cart-bar').classList.add('hidden');
+            document.getElementById('acepto-terminos').checked = false;
 
             setTimeout(() => {
                 if (!checkoutMap) {
@@ -575,9 +686,15 @@
             const telefono = document.getElementById('cliente-telefono').value.trim();
             const direccion = document.getElementById('cliente-direccion').value.trim();
             const metodoPago = document.getElementById('cliente-pago').value;
+            const aceptoTerminos = document.getElementById('acepto-terminos').checked;
 
             if(!nombre || !direccion || !telefono) {
                 alert('Por favor ingresa tu nombre, teléfono y dirección.');
+                return;
+            }
+
+            if(!aceptoTerminos) {
+                alert('Debes aceptar los Términos, Condiciones y Políticas de Privacidad para continuar.');
                 return;
             }
 
