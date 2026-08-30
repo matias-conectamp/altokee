@@ -104,15 +104,15 @@
             <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl shadow-sm text-center space-y-2">
                 <div class="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold shadow">✓</div>
                 <h2 class="text-xl font-bold text-emerald-900">¡Pedido y Pago Confirmado!</h2>
-                <p class="text-xs text-emerald-700">Tu pedido va en camino a tu ubicación marcada.</p>
+                <p class="text-xs text-emerald-700">Tu pedido va en camino o listo para retiro.</p>
             </div>
 
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center font-bold text-lg">🛵</div>
                     <div>
-                        <p class="text-xs text-gray-400 font-medium">Repartidor Asignado</p>
-                        <h4 id="driver-nombre-asignado" class="font-bold text-gray-900 text-sm">Carlos "El Rayo" Soto</h4>
+                        <p class="text-xs text-gray-400 font-medium">Repartidor / Comercio</p>
+                        <h4 id="driver-nombre-asignado" class="font-bold text-gray-900 text-sm">Soporte Altoke</h4>
                     </div>
                 </div>
                 <div class="flex gap-2">
@@ -123,7 +123,7 @@
             </div>
 
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 space-y-2">
-                <h3 class="text-xs font-bold text-gray-600 uppercase">Ubicación de Entrega en el Mapa</h3>
+                <h3 class="text-xs font-bold text-gray-600 uppercase">Ubicación Registrada en el Mapa</h3>
                 <div id="tracking-map" class="w-full h-64 rounded-xl border border-gray-200 z-10"></div>
             </div>
 
@@ -269,7 +269,7 @@
         </div>
     </div>
 
-    <!-- Modal de Checkout -->
+    <!-- Modal de Checkout Actualizado con Sectores de Delivery y Retiro en Local -->
     <div id="checkout-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
@@ -288,17 +288,28 @@
                     <input type="text" id="cliente-nombre" placeholder="Ej. Juan Pérez" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Tu Teléfono (para el Driver)</label>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Tu Teléfono (para el Driver / Local)</label>
                     <input type="text" id="cliente-telefono" placeholder="Ej. +56912345678" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Dirección Referencial</label>
-                    <input type="text" id="cliente-direccion" placeholder="Ej. Los Lirios #456, Curacaví" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                    <input type="text" id="cliente-direccion" placeholder="Ej. Los Lirios #456" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                </div>
+
+                <!-- Selector de Sector de Delivery / Retiro en Local -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">📍 Tipo de Despacho o Retiro</label>
+                    <select id="selector-sector-envio" onchange="cambiarSectorEnvio()" class="w-full border border-gray-300 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-red-500 outline-none">
+                        <option value="0">🏪 Retiro en Local (Gratis)</option>
+                        <option value="1500">🛵 Curacaví Urbano / Centro ($1.500)</option>
+                        <option value="2500">🛵 Parcelas / Sectores Periféricos ($2.500)</option>
+                        <option value="3500">🛵 María Pinto / Sectores Rurales ($3.500)</option>
+                    </select>
                 </div>
 
                 <div>
                     <div class="flex justify-between items-center mb-1">
-                        <label class="block text-xs font-semibold text-gray-600">📍 Ubicación exacta (Mueve el pin si es necesario)</label>
+                        <label class="block text-xs font-semibold text-gray-600">📍 Ubicación exacta (Mueve el pin)</label>
                         <button type="button" onclick="obtenerUbicacionActualGPS()" class="text-[10px] bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-0.5 rounded-lg transition">
                             📍 Usar mi GPS actual
                         </button>
@@ -309,17 +320,16 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Método de Pago y Confirmación</label>
                     <select id="cliente-pago" onchange="actualizarInstruccionPago()" class="w-full border border-gray-300 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-red-500 outline-none">
-                        <option value="Efectivo">Efectivo 💵 (Pago contra entrega)</option>
+                        <option value="Efectivo">Efectivo 💵 (Pago contra entrega o en local)</option>
                         <option value="Transferencia Bancaria">Transferencia Bancaria 🏦 (Se enviará comprobante)</option>
-                        <option value="Tarjeta / Débito">Débito / Redcompra 💳 (POS móvil al recibir)</option>
+                        <option value="Tarjeta / Débito">Débito / Redcompra 💳 (POS móvil o en local)</option>
                     </select>
                 </div>
 
                 <div id="instruccion-pago-box" class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-900">
-                    💵 Pagarás en efectivo al momento de recibir tu pedido.
+                    💵 Pagarás en efectivo al momento de recibir tu pedido o retirar.
                 </div>
 
-                <!-- Casilla de Aceptación de Términos -->
                 <div class="flex items-start gap-2 pt-1">
                     <input type="checkbox" id="acepto-terminos" class="mt-0.5 h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500">
                     <label for="acepto-terminos" class="text-xs text-gray-600 leading-tight">
@@ -348,6 +358,7 @@
         let checkoutMarker = null;
         let latSeleccionada = -33.4005;
         let lngSeleccionada = -71.1328;
+        let costoEnvioActual = 0; // Por defecto arranca en retiro en local (0) o puedes cambiarlo
 
         window.onload = function() {
             cargarLocalesDirecto();
@@ -385,6 +396,12 @@
                 `;
                 container.appendChild(card);
             });
+        }
+
+        function cambiarSectorEnvio() {
+            const select = document.getElementById('selector-sector-envio');
+            costoEnvioActual = Number(select.value);
+            actualizarBarraCarrito();
         }
 
         function abrirModalLegal() {
@@ -592,8 +609,14 @@
                 return;
             }
             cartBar.classList.remove('hidden');
-            const total = carrito.reduce((sum, item) => sum + Number(item.price), 0);
-            document.getElementById('cart-total').innerText = `$${total.toLocaleString('es-CL')}`;
+            const subtotal = carrito.reduce((sum, item) => sum + Number(item.price), 0);
+            const totalFinal = subtotal + costoEnvioActual;
+            
+            if (costoEnvioActual === 0) {
+                document.getElementById('cart-total').innerText = `$${totalFinal.toLocaleString('es-CL')} (Retiro en Local)`;
+            } else {
+                document.getElementById('cart-total').innerText = `$${totalFinal.toLocaleString('es-CL')} (Incluye $${costoEnvioActual.toLocaleString('es-CL')} delivery)`;
+            }
         }
 
         function abrirCheckout() {
@@ -665,13 +688,13 @@
             const caja = document.getElementById('instruccion-pago-box');
             if (metodo === 'Efectivo') {
                 caja.className = "bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-900";
-                caja.innerHTML = "💵 Pagarás en efectivo al momento de recibir tu pedido.";
+                caja.innerHTML = "💵 Pagarás en efectivo al momento de recibir tu pedido o retirar.";
             } else if (metodo === 'Transferencia Bancaria') {
                 caja.className = "bg-blue-50 border border-blue-200 p-3 rounded-xl text-xs text-blue-900";
-                caja.innerHTML = "🏦 Al confirmar, se abrirá WhatsApp con los datos para transferir y enviar tu comprobante al comercio.";
+                caja.innerHTML = "🏦 Al confirmar, se abrirá WhatsApp con los datos para transferir y enviar tu comprobante.";
             } else {
                 caja.className = "bg-purple-50 border border-purple-200 p-3 rounded-xl text-xs text-purple-900";
-                caja.innerHTML = "💳 El repartidor llevará una máquina POS móvil para pago con tarjeta al llegar.";
+                caja.innerHTML = "💳 Pago con tarjeta mediante POS móvil al recibir o directamente en el local.";
             }
         }
 
@@ -681,6 +704,7 @@
             const direccion = document.getElementById('cliente-direccion').value.trim();
             const metodoPago = document.getElementById('cliente-pago').value;
             const aceptoTerminos = document.getElementById('acepto-terminos').checked;
+            const selectSectorText = document.getElementById('selector-sector-envio').selectedOptions[0].text;
 
             if(!nombre || !direccion || !telefono) {
                 alert('Por favor ingresa tu nombre, teléfono y dirección.');
@@ -693,17 +717,21 @@
             }
 
             let detalle = carrito.map(i => `• ${i.name} ($${Number(i.price).toLocaleString('es-CL')})`).join('\n');
-            let total = carrito.reduce((sum, i) => sum + Number(i.price), 0);
+            let subtotal = carrito.reduce((sum, i) => sum + Number(i.price), 0);
+            let totalGeneral = subtotal + costoEnvioActual;
             let linkGoogleMaps = `https://maps.google.com/?q=${latSeleccionada},${lngSeleccionada}`;
 
             let mensaje = `¡Hola! ⚡ *Nuevo Pedido y Pago Confirmado Altoke*\n\n` +
                           `👤 *Cliente:* ${nombre}\n` +
                           `📞 *Teléfono:* ${telefono}\n` +
                           `📍 *Dirección:* ${direccion}\n` +
-                          `🗺️ *Ubicación GPS Exacta:* ${linkGoogleMaps}\n` +
+                          `📦 *Tipo de Entrega:* ${selectSectorText}\n` +
+                          `🗺️ *Ubicación GPS:* ${linkGoogleMaps}\n` +
                           `💳 *Pago / Estado:* ${metodoPago} (✅ Confirmado por cliente)\n\n` +
-                          `🛒 *Detalle:*\n${detalle}\n\n` +
-                          `💰 *Total a Cancelar:* $${total.toLocaleString('es-CL')}\n\n` +
+                          `🛒 *Detalle de Productos:*\n${detalle}\n\n` +
+                          `📦 *Subtotal Productos:* $${subtotal.toLocaleString('es-CL')}\n` +
+                          `🛵 *Costo Envío / Retiro:* $${costoEnvioActual.toLocaleString('es-CL')}\n` +
+                          `💰 *Total Final a Cancelar:* $${totalGeneral.toLocaleString('es-CL')}\n\n` +
                           `_Enviado vía Altoke_`;
 
             let telefonoLocal = localActual && localActual.whatsapp_phone ? localActual.whatsapp_phone.replace(/[^0-9]/g, '') : '56912345678';
@@ -721,7 +749,7 @@
             document.getElementById('client-tracking-view').classList.remove('hidden');
             
             const driverTel = "56912345678";
-            const textoDriver = `Hola Driver, soy ${nombreCliente} (${telCliente}). Mi pago está confirmado. ¿Cómo va mi pedido Altoke?`;
+            const textoDriver = `Hola, soy ${nombreCliente} (${telCliente}). Mi pago está confirmado. ¿Cómo va mi pedido Altoke?`;
             document.getElementById('driver-whatsapp-btn').href = `https://wa.me/${driverTel}?text=${encodeURIComponent(textoDriver)}`;
 
             setTimeout(() => {
@@ -732,7 +760,7 @@
                     }).addTo(trackingMap);
 
                     L.marker([latSeleccionada, lngSeleccionada]).addTo(trackingMap)
-                        .bindPopup('<b>Tu ubicación de entrega exacta</b>')
+                        .bindPopup('<b>Ubicación registrada</b>')
                         .openPopup();
                 } else {
                     trackingMap.setView([latSeleccionada, lngSeleccionada], 15);
