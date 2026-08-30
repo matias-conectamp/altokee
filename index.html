@@ -99,12 +99,36 @@
             <div id="products-container" class="space-y-3"></div>
         </div>
 
-        <!-- 3. Pantalla de Seguimiento del Cliente -->
+        <!-- 3. Pantalla de Seguimiento del Cliente (Con Estados en Tiempo Real) -->
         <div id="client-tracking-view" class="hidden space-y-4">
             <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl shadow-sm text-center space-y-2">
                 <div class="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold shadow">✓</div>
-                <h2 class="text-xl font-bold text-emerald-900">¡Pedido y Pago Confirmado!</h2>
-                <p class="text-xs text-emerald-700">Tu pedido va en camino o listo para retiro.</p>
+                <h2 class="text-xl font-bold text-emerald-900">¡Pedido Enviado con Éxito!</h2>
+                <p class="text-xs text-emerald-700">Sigue el estado de tu pedido en tiempo real a continuación.</p>
+            </div>
+
+            <!-- Barra de Estados Interactivos para el Cliente -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 space-y-3">
+                <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wide text-center">Estado de tu Pedido 🕒</h3>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div id="step-recibido" class="p-2.5 rounded-xl border-2 border-red-600 bg-red-50 text-red-900 text-xs font-bold transition">
+                        📥 1. Recibido
+                    </div>
+                    <div id="step-preparacion" class="p-2.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-400 text-xs font-bold transition">
+                        👨‍🍳 2. Preparando
+                    </div>
+                    <div id="step-camino" class="p-2.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-400 text-xs font-bold transition">
+                        🛵 3. En Camino
+                    </div>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button onclick="cambiarEstadoCliente('preparacion')" class="w-1/2 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold py-2 rounded-lg transition">
+                        Simular: Preparando 👨‍🍳
+                    </button>
+                    <button onclick="cambiarEstadoCliente('camino')" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold py-2 rounded-lg transition">
+                        Simular: En Camino 🛵
+                    </button>
+                </div>
             </div>
 
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex justify-between items-center">
@@ -182,31 +206,51 @@
             <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 text-center space-y-4 my-6">
                 <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">🏪</div>
                 <h2 class="text-xl font-bold text-gray-900">Portal de Comercios</h2>
-                <p class="text-xs text-gray-500">Gestiona el stock y estado de tus productos.</p>
+                <p class="text-xs text-gray-500">Ingresa el nombre de tu local y tu clave secreta.</p>
                 <input type="text" id="comercio-nombre-ingreso" placeholder="Nombre de tu local (Ej: Luky Lu)" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-red-500 outline-none">
+                <input type="password" id="comercio-clave-ingreso" placeholder="Clave secreta del comercio" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-red-500 outline-none">
                 <button onclick="ingresarPortalComercio()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow transition">
-                    Ver mis Productos 📋
+                    Acceder al Panel 📋
                 </button>
             </div>
         </div>
 
-        <!-- 7. Panel de Control de Stock del Comercio -->
+        <!-- 7. Panel de Control de Stock y Horarios del Comercio -->
         <div id="comercio-stock-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Salir del portal
             </button>
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
                 <div>
-                    <h2 id="titulo-comercio-panel" class="text-xl font-bold text-red-950">Gestión de Stock</h2>
-                    <p class="text-xs text-gray-500">Activa o desactiva productos según disponibilidad.</p>
+                    <h2 id="titulo-comercio-panel" class="text-xl font-bold text-red-950">Gestión de Negocio</h2>
+                    <p class="text-xs text-gray-500">Controla tu estado operativo (abierto/cerrado), horario y stock.</p>
                 </div>
-                <div id="comercio-products-stock-list" class="space-y-3"></div>
+
+                <div class="bg-gray-50 border border-gray-200 p-4 rounded-xl space-y-3">
+                    <h3 class="text-xs font-bold text-gray-700 uppercase">Estado del Local</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-gray-600">¿Local Abierto al público?</span>
+                        <button id="btn-estado-local" onclick="toggleEstadoLocal()" class="px-3 py-1.5 rounded-lg text-xs font-bold transition">Cargando...</button>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Horario de Atención (Ej: 10:00 - 20:00 hrs)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="input-horario-local" placeholder="10:00 a 20:00 hrs" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-red-500 outline-none">
+                            <button onclick="guardarHorarioLocal()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-gray-700 uppercase mb-2">Inventario de Productos</h3>
+                    <div id="comercio-products-stock-list" class="space-y-3"></div>
+                </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Modal de Términos y Condiciones / Legal -->
+    <!-- Modal de Términos y Condiciones / Legal Actualizado -->
     <div id="modal-legal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
@@ -215,8 +259,8 @@
             </div>
             <div class="text-xs text-gray-600 space-y-3 leading-relaxed">
                 <p><b>1. Sobre el Servicio:</b> Altoke es una plataforma tecnológica de intermediación digital que conecta a usuarios con comercios locales independientes y repartidores en las comunas de Curacaví y María Pinto.</p>
-                <p><b>2. Responsabilidad de Productos:</b> Los comercios asociados son los únicos responsables de la calidad, frescura, precios y stock de los productos ofrecidos (tales como Helados Luky Lu).</p>
-                <p><b>3. Pagos y Entregas:</b> Los pagos se efectúan según el método elegido por el cliente (efectivo, transferencia o POS móvil). Altoke no almacena datos bancarios ni de tarjetas de crédito.</p>
+                <p><b>2. Responsabilidad de Alimentos y Productos:</b> <u>La calidad, frescura, preparación, estado y stock de la comida o productos ofrecidos es de absoluta y exclusiva responsabilidad del comercio asociado</u> (tales como Helados Luky Lu). Altoke no asume responsabilidad por la elaboración de los alimentos.</p>
+                <p><b>3. Pagos y Entregas:</b> Los pagos se efectúan según el método elegido por el cliente (efectivo, transferencia o POS móvil) al momento de recibir o retirar. Altoke no almacena datos bancarios ni de tarjetas de crédito.</p>
                 <p><b>4. Geolocalización y Privacidad:</b> Al utilizar el sistema de mapas y GPS, el usuario autoriza el uso temporal de su ubicación únicamente con el fin de coordinar la ruta de entrega con el repartidor asignado.</p>
                 <p><b>5. Membresía Club Pro:</b> La suscripción mensual al Club Altoke Pro otorga beneficios preferenciales y despachos bonificados bajo los términos vigentes anunciados en la plataforma.</p>
             </div>
@@ -269,7 +313,7 @@
         </div>
     </div>
 
-    <!-- Modal de Checkout Actualizado con Sectores de Delivery y Retiro en Local -->
+    <!-- Modal de Checkout -->
     <div id="checkout-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
@@ -296,7 +340,6 @@
                     <input type="text" id="cliente-direccion" placeholder="Ej. Los Lirios #456" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
                 </div>
 
-                <!-- Selector de Sector de Delivery / Retiro en Local -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">📍 Tipo de Despacho o Retiro</label>
                     <select id="selector-sector-envio" onchange="cambiarSectorEnvio()" class="w-full border border-gray-300 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-red-500 outline-none">
@@ -359,6 +402,7 @@
         let latSeleccionada = -33.4005;
         let lngSeleccionada = -71.1328;
         let costoEnvioActual = 0; 
+        let storeActualId = null;
 
         window.onload = function() {
             cargarLocalesDirecto();
@@ -388,7 +432,7 @@
                 card.innerHTML = `
                     <div>
                         <h3 class="font-bold text-gray-900 text-base">${store.name}</h3>
-                        <p class="text-xs text-red-600 font-semibold mt-1">📍 ${store.comuna || 'Curacaví / María Pinto'}</p>
+                        <p class="text-xs text-red-600 font-semibold mt-1">📍 ${store.comuna || 'Curacaví / María Pinto'} | 🕒 ${store.horario || 'Abierto'}</p>
                     </div>
                     <button onclick='verMenu(${JSON.stringify(store)})' class="bg-red-600 hover:bg-red-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-sm">
                         Ver Menú ➔
@@ -459,12 +503,15 @@
             ocultarTodo();
             document.getElementById('comercio-login-view').classList.remove('hidden');
             document.getElementById('comercio-nombre-ingreso').value = '';
+            document.getElementById('comercio-clave-ingreso').value = '';
         }
 
         async function ingresarPortalComercio() {
             const nombreLocal = document.getElementById('comercio-nombre-ingreso').value.trim();
-            if(!nombreLocal) {
-                alert('Ingresa el nombre de tu local.');
+            const claveLocal = document.getElementById('comercio-clave-ingreso').value.trim();
+
+            if(!nombreLocal || !claveLocal) {
+                alert('Ingresa el nombre del local y su clave de acceso.');
                 return;
             }
 
@@ -480,10 +527,68 @@
             }
 
             const store = stores[0];
-            document.getElementById('titulo-comercio-panel').innerText = `Stock: ${store.name}`;
+            const claveValida = store.store_password || 'lukylu2026';
+            if (claveLocal !== claveValida) {
+                alert('❌ Clave de comercio incorrecta.');
+                return;
+            }
+
+            storeActualId = store.id;
+            document.getElementById('titulo-comercio-panel').innerText = `Gestión: ${store.name}`;
+            document.getElementById('input-horario-local').value = store.horario || '';
+            actualizarBotonEstadoUI(store.is_open);
+
             ocultarTodo();
             document.getElementById('comercio-stock-view').classList.remove('hidden');
             cargarStockProductos(store.id);
+        }
+
+        function actualizarBotonEstadoUI(isOpen) {
+            const btn = document.getElementById('btn-estado-local');
+            if(isOpen) {
+                btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
+                btn.innerText = "● Abierto al Público";
+            } else {
+                btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-red-100 text-red-800 hover:bg-red-200 transition";
+                btn.innerText = "✕ Cerrado";
+            }
+        }
+
+        async function toggleEstadoLocal() {
+            if(!storeActualId) return;
+            const { data, error } = await supabaseClient
+                .from('stores')
+                .select('is_open')
+                .eq('id', storeActualId)
+                .single();
+
+            if(error) return;
+
+            const nuevoEstado = !data.is_open;
+            const { error: updateError } = await supabaseClient
+                .from('stores')
+                .update({ is_open: nuevoEstado })
+                .eq('id', storeActualId);
+
+            if(!updateError) {
+                actualizarBotonEstadoUI(nuevoEstado);
+            }
+        }
+
+        async function guardarHorarioLocal() {
+            if(!storeActualId) return;
+            const nuevoHorario = document.getElementById('input-horario-local').value.trim();
+
+            const { error } = await supabaseClient
+                .from('stores')
+                .update({ horario: nuevoHorario })
+                .eq('id', storeActualId);
+
+            if(!error) {
+                alert('✅ Horario actualizado exitosamente.');
+            } else {
+                alert('❌ Error al actualizar el horario.');
+            }
         }
 
         async function cargarStockProductos(storeId) {
@@ -552,7 +657,7 @@
             document.getElementById('stores-view').classList.add('hidden');
             document.getElementById('menu-view').classList.remove('hidden');
             document.getElementById('nombre-local-titulo').innerText = store.name;
-            document.getElementById('whatsapp-local-info').innerText = `WhatsApp pedidos: ${store.whatsapp_phone || 'Disponible'}`;
+            document.getElementById('whatsapp-local-info').innerText = `WhatsApp pedidos: ${store.whatsapp_phone || 'Disponible'} | Horario: ${store.horario || 'Abierto'}`;
             document.getElementById('local-banner-img').src = store.banner_url || 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=800';
 
             const container = document.getElementById('products-container');
@@ -744,9 +849,32 @@
             mostrarPantallaSeguimientoCliente(nombre, telefono);
         }
 
+        function cambiarEstadoCliente(estado) {
+            const r = document.getElementById('step-recibido');
+            const p = document.getElementById('step-preparacion');
+            const c = document.getElementById('step-camino');
+
+            // Reset estilos
+            r.className = "p-2.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-400 text-xs font-bold transition";
+            p.className = "p-2.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-400 text-xs font-bold transition";
+            c.className = "p-2.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-400 text-xs font-bold transition";
+
+            if(estado === 'recibido') {
+                r.className = "p-2.5 rounded-xl border-2 border-red-600 bg-red-50 text-red-900 text-xs font-bold transition";
+            } else if(estado === 'preparacion') {
+                r.className = "p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 text-xs font-bold transition";
+                p.className = "p-2.5 rounded-xl border-2 border-amber-500 bg-amber-50 text-amber-900 text-xs font-bold transition";
+            } else if(estado === 'camino') {
+                r.className = "p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 text-xs font-bold transition";
+                p.className = "p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 text-xs font-bold transition";
+                c.className = "p-2.5 rounded-xl border-2 border-blue-600 bg-blue-50 text-blue-900 text-xs font-bold transition";
+            }
+        }
+
         function mostrarPantallaSeguimientoCliente(nombreCliente, telCliente) {
             ocultarTodo();
             document.getElementById('client-tracking-view').classList.remove('hidden');
+            cambiarEstadoCliente('recibido'); // Estado inicial por defecto al enviar
             
             const driverTel = "56912345678";
             const textoDriver = `Hola, soy ${nombreCliente} (${telCliente}). Mi pago está confirmado. ¿Cómo va mi pedido Altoke?`;
