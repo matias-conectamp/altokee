@@ -12,7 +12,6 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans pb-24">
 
-    <!-- Header Profesional -->
     <header class="bg-red-600 text-white p-4 shadow-lg sticky top-0 z-50 border-b-4 border-yellow-400">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2.5 cursor-pointer" onclick="cargarLocalesDirecto()">
@@ -38,10 +37,8 @@
         </div>
     </header>
 
-    <!-- Contenedor Principal -->
     <main class="max-w-md mx-auto p-4 space-y-4">
         
-        <!-- 1. Vitrina General de Locales -->
         <div id="stores-view">
             <div class="bg-gradient-to-r from-yellow-400 to-amber-500 border border-yellow-500 p-4 rounded-2xl mb-4 shadow-md text-red-900 text-center relative overflow-hidden">
                 <span class="absolute top-1 right-2 text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Auspicio</span>
@@ -69,7 +66,6 @@
             </div>
         </div>
 
-        <!-- 2. Menú del Local -->
         <div id="menu-view" class="hidden">
             <button onclick="volverALocales()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver a los locales
@@ -81,12 +77,11 @@
             <div id="products-container" class="space-y-3"></div>
         </div>
 
-        <!-- 3. Pantalla de Seguimiento del Cliente -->
         <div id="client-tracking-view" class="hidden space-y-4">
             <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl shadow-sm text-center space-y-2">
                 <div class="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold shadow">✓</div>
                 <h2 class="text-xl font-bold text-emerald-900">¡Pedido y Pago Confirmado!</h2>
-                <p class="text-xs text-emerald-700">Tu pedido va en camino a la ubicación marcada.</p>
+                <p class="text-xs text-emerald-700">Tu pedido va en camino a tu ubicación marcada.</p>
             </div>
 
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex justify-between items-center">
@@ -114,7 +109,6 @@
             </button>
         </div>
 
-        <!-- 4. Vista de Login de Drivers -->
         <div id="driver-login-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver al inicio
@@ -130,7 +124,6 @@
             </div>
         </div>
 
-        <!-- 5. Vista Privada de Drivers -->
         <div id="driver-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Salir del panel
@@ -156,7 +149,6 @@
             </div>
         </div>
 
-        <!-- 6. Vista de Login de Comercios -->
         <div id="comercio-login-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver al inicio
@@ -172,7 +164,6 @@
             </div>
         </div>
 
-        <!-- 7. Panel de Control de Stock del Comercio -->
         <div id="comercio-stock-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Salir del portal
@@ -188,7 +179,6 @@
 
     </main>
 
-    <!-- Barra Flotante del Carrito -->
     <div id="cart-bar" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-40">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
@@ -201,7 +191,6 @@
         </div>
     </div>
 
-    <!-- Modal de Checkout con Mapa de Ubicación, Eliminación de Items y Confirmación de Pago -->
     <div id="checkout-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
@@ -209,9 +198,8 @@
                 <button onclick="cerrarCheckout()" class="text-gray-400 hover:text-gray-600 font-bold text-xl px-2">✕</button>
             </div>
             
-            <!-- Resumen de items con opción de eliminar -->
             <div>
-                <p class="text-xs font-bold text-gray-500 uppercase mb-2">Tus Productos (puedes quitar si te equivocaste)</p>
+                <p class="text-xs font-bold text-gray-500 uppercase mb-2">Tus Productos</p>
                 <div id="cart-items-summary" class="space-y-2 max-h-36 overflow-y-auto border-b pb-3 text-sm"></div>
             </div>
 
@@ -229,9 +217,13 @@
                     <input type="text" id="cliente-direccion" placeholder="Ej. Los Lirios #456, Curacaví" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none">
                 </div>
 
-                <!-- Mapa interactivo para marcar ubicación exacta -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">📍 Marca tu ubicación exacta en el mapa (Mueve el pin)</label>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-semibold text-gray-600">📍 Ubicación exacta (Mueve el pin si es necesario)</label>
+                        <button type="button" onclick="obtenerUbicacionActualGPS()" class="text-[10px] bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-0.5 rounded-lg transition">
+                            📍 Usar mi GPS actual
+                        </button>
+                    </div>
                     <div id="checkout-map" class="w-full h-40 rounded-xl border border-gray-300 z-10"></div>
                 </div>
 
@@ -244,7 +236,6 @@
                     </select>
                 </div>
 
-                <!-- Cuadro de instrucciones/confirmación de pago -->
                 <div id="instruccion-pago-box" class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-900">
                     💵 Pagarás en efectivo al momento de recibir tu pedido.
                 </div>
@@ -256,7 +247,6 @@
         </div>
     </div>
 
-    <!-- Script de Funcionalidad -->
     <script>
         const SUPABASE_URL = 'https://bboowsfigdbafzrgugvp.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_vFh5RhnJ-EywdawMZsLMfw_1dMeBx5R';
@@ -488,12 +478,12 @@
 
             setTimeout(() => {
                 if (!checkoutMap) {
-                    checkoutMap = L.map('checkout-map').setView([-33.4005, -71.1328], 13);
+                    checkoutMap = L.map('checkout-map').setView([latSeleccionada, lngSeleccionada], 14);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '© OpenStreetMap'
                     }).addTo(checkoutMap);
 
-                    checkoutMarker = L.marker([-33.4005, -71.1328], {draggable: true}).addTo(checkoutMap);
+                    checkoutMarker = L.marker([latSeleccionada, lngSeleccionada], {draggable: true}).addTo(checkoutMap);
                     
                     checkoutMarker.on('dragend', function(e) {
                         const pos = checkoutMarker.getLatLng();
@@ -503,7 +493,28 @@
                 } else {
                     checkoutMap.invalidateSize();
                 }
+                // Intenta obtener la ubicación actual automáticamente al abrir el carrito
+                obtenerUbicacionActualGPS();
             }, 300);
+        }
+
+        function obtenerUbicacionActualGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        latSeleccionada = position.coords.latitude;
+                        lngSeleccionada = position.coords.longitude;
+                        if (checkoutMap && checkoutMarker) {
+                            checkoutMap.setView([latSeleccionada, lngSeleccionada], 16);
+                            checkoutMarker.setLatLng([latSeleccionada, lngSeleccionada]);
+                        }
+                    },
+                    (error) => {
+                        console.log("No se pudo obtener GPS automático, usando ubicación referencial.");
+                    },
+                    { enableHighAccuracy: true }
+                );
+            }
         }
 
         function renderizarResumenCarrito() {
@@ -552,13 +563,13 @@
 
             let detalle = carrito.map(i => `• ${i.name} ($${Number(i.price).toLocaleString('es-CL')})`).join('\n');
             let total = carrito.reduce((sum, i) => sum + Number(i.price), 0);
-            let linkUbicacion = `https://maps.google.com/?q=${latSeleccionada},${lngSeleccionada}`;
+            let linkGoogleMaps = `https://maps.google.com/?q=${latSeleccionada},${lngSeleccionada}`;
 
             let mensaje = `¡Hola! ⚡ *Nuevo Pedido y Pago Confirmado Altoke*\n\n` +
                           `👤 *Cliente:* ${nombre}\n` +
                           `📞 *Teléfono:* ${telefono}\n` +
                           `📍 *Dirección:* ${direccion}\n` +
-                          `🗺️ *Ubicación GPS:* ${linkUbicacion}\n` +
+                          `🗺️ *Ubicación GPS Exacta:* ${linkGoogleMaps}\n` +
                           `💳 *Pago / Estado:* ${metodoPago} (✅ Confirmado por cliente)\n\n` +
                           `🛒 *Detalle:*\n${detalle}\n\n` +
                           `💰 *Total a Cancelar:* $${total.toLocaleString('es-CL')}\n\n` +
