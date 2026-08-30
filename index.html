@@ -12,6 +12,7 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans pb-24">
 
+    <!-- Header Profesional -->
     <header class="bg-red-600 text-white p-4 shadow-lg sticky top-0 z-50 border-b-4 border-yellow-400">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2.5 cursor-pointer" onclick="cargarLocalesDirecto()">
@@ -37,8 +38,10 @@
         </div>
     </header>
 
+    <!-- Contenedor Principal -->
     <main class="max-w-md mx-auto p-4 space-y-4">
         
+        <!-- 1. Vitrina General de Locales -->
         <div id="stores-view">
             <div class="bg-gradient-to-r from-yellow-400 to-amber-500 border border-yellow-500 p-4 rounded-2xl mb-4 shadow-md text-red-900 text-center relative overflow-hidden">
                 <span class="absolute top-1 right-2 text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Auspicio</span>
@@ -66,17 +69,25 @@
             </div>
         </div>
 
+        <!-- 2. Menú del Local (Con Portada / Banner) -->
         <div id="menu-view" class="hidden">
             <button onclick="volverALocales()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver a los locales
             </button>
-            <div class="bg-red-50 border border-red-200 p-4 rounded-2xl mb-4 shadow-sm">
-                <h2 id="nombre-local-titulo" class="text-xl font-bold text-red-950"></h2>
-                <p id="whatsapp-local-info" class="text-xs text-red-700 mt-0.5 font-medium">Despacho activo Altoke</p>
+            
+            <!-- Imagen de Portada del Local -->
+            <div class="relative rounded-2xl overflow-hidden shadow-md mb-4 border border-gray-200 bg-white">
+                <img id="local-banner-img" src="" alt="Portada Local" class="w-full h-36 object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
+                    <h2 id="nombre-local-titulo" class="text-xl font-black drop-shadow"></h2>
+                    <p id="whatsapp-local-info" class="text-xs text-yellow-300 font-semibold mt-0.5 drop-shadow">Despacho activo Altoke</p>
+                </div>
             </div>
+
             <div id="products-container" class="space-y-3"></div>
         </div>
 
+        <!-- 3. Pantalla de Seguimiento del Cliente -->
         <div id="client-tracking-view" class="hidden space-y-4">
             <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl shadow-sm text-center space-y-2">
                 <div class="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold shadow">✓</div>
@@ -109,6 +120,7 @@
             </button>
         </div>
 
+        <!-- 4. Vista de Login de Drivers -->
         <div id="driver-login-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver al inicio
@@ -124,6 +136,7 @@
             </div>
         </div>
 
+        <!-- 5. Vista Privada de Drivers -->
         <div id="driver-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Salir del panel
@@ -149,6 +162,7 @@
             </div>
         </div>
 
+        <!-- 6. Vista de Login de Comercios -->
         <div id="comercio-login-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver al inicio
@@ -164,6 +178,7 @@
             </div>
         </div>
 
+        <!-- 7. Panel de Control de Stock del Comercio -->
         <div id="comercio-stock-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Salir del portal
@@ -179,6 +194,7 @@
 
     </main>
 
+    <!-- Barra Flotante del Carrito -->
     <div id="cart-bar" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-40">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
@@ -191,6 +207,7 @@
         </div>
     </div>
 
+    <!-- Modal de Checkout -->
     <div id="checkout-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
@@ -247,6 +264,7 @@
         </div>
     </div>
 
+    <!-- Script de Funcionalidad -->
     <script>
         const SUPABASE_URL = 'https://bboowsfigdbafzrgugvp.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_vFh5RhnJ-EywdawMZsLMfw_1dMeBx5R';
@@ -412,6 +430,9 @@
             document.getElementById('menu-view').classList.remove('hidden');
             document.getElementById('nombre-local-titulo').innerText = store.name;
             document.getElementById('whatsapp-local-info').innerText = `WhatsApp pedidos: ${store.whatsapp_phone || 'Disponible'}`;
+            
+            // Asigna la foto de banner del local o una por defecto si no tiene
+            document.getElementById('local-banner-img').src = store.banner_url || 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=800';
 
             const container = document.getElementById('products-container');
             container.innerHTML = `<p class="text-gray-400 text-center py-8 text-sm">Cargando menú...</p>`;
@@ -493,7 +514,6 @@
                 } else {
                     checkoutMap.invalidateSize();
                 }
-                // Intenta obtener la ubicación actual automáticamente al abrir el carrito
                 obtenerUbicacionActualGPS();
             }, 300);
         }
@@ -510,7 +530,7 @@
                         }
                     },
                     (error) => {
-                        console.log("No se pudo obtener GPS automático, usando ubicación referencial.");
+                        console.log("No se pudo obtener GPS automático.");
                     },
                     { enableHighAccuracy: true }
                 );
