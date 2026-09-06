@@ -12,13 +12,16 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans pb-24">
 
-    <!-- Header Profesional con Logo Oficial -->
+    <!-- Header Profesional con Logo Oficial y Acceso Admin -->
     <header class="bg-red-600 text-white p-3 shadow-lg sticky top-0 z-50 border-b-4 border-yellow-400">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2.5 cursor-pointer" onclick="cargarLocalesDirecto()">
                 <img src="https://bboowsfigdbafzrgugvp.supabase.co/storage/v1/object/public/logo/Gemini_Generated_Image_1kj49u1kj49u1kj4.jfif" alt="Altoke Logo" class="h-11 w-auto object-contain rounded-lg bg-white p-0.5 shadow-sm">
             </div>
-            <div class="flex gap-1.5">
+            <div class="flex gap-1.5 items-center">
+                <button onclick="verSeccionAdminLogin()" class="text-[11px] bg-yellow-400 hover:bg-yellow-500 text-red-950 px-2 py-1.5 rounded-full font-black transition shadow-sm" title="Panel de Administrador">
+                    👑 Admin
+                </button>
                 <button onclick="verSeccionComercioLogin()" class="text-[11px] bg-red-700 hover:bg-red-800 text-white px-2.5 py-1.5 rounded-full font-semibold transition shadow-sm">
                     🏪 Locales
                 </button>
@@ -99,7 +102,7 @@
             <div id="products-container" class="space-y-3"></div>
         </div>
 
-        <!-- 3. Pantalla de Seguimiento del Cliente (Con Estados en Tiempo Real) -->
+        <!-- 3. Pantalla de Seguimiento del Cliente -->
         <div id="client-tracking-view" class="hidden space-y-4">
             <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl shadow-sm text-center space-y-2">
                 <div class="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold shadow">✓</div>
@@ -244,6 +247,58 @@
                 <div>
                     <h3 class="text-xs font-bold text-gray-700 uppercase mb-2">Inventario de Productos</h3>
                     <div id="comercio-products-stock-list" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Vista de Login de Administrador General -->
+        <div id="admin-login-view" class="hidden">
+            <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
+                ⬅ Volver al inicio
+            </button>
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 text-center space-y-4 my-6">
+                <div class="w-12 h-12 bg-yellow-100 text-yellow-700 rounded-full flex items-center justify-center mx-auto text-xl font-bold">👑</div>
+                <h2 class="text-xl font-bold text-gray-900">Portal de Administrador</h2>
+                <p class="text-xs text-gray-500">Ingresa tu clave maestra para revisar cambios y red.</p>
+                <input type="password" id="admin-password" placeholder="Clave Administrador (altokeadmin2026)" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-yellow-500 outline-none">
+                <button onclick="verificarClaveAdmin()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-red-950 font-black py-3 rounded-xl shadow transition">
+                    Entrar al Panel de Control ⚡
+                </button>
+            </div>
+        </div>
+
+        <!-- 9. Panel Privado de Administrador General -->
+        <div id="admin-view" class="hidden space-y-4">
+            <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
+                ⬅ Salir del panel admin
+            </button>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
+                <div>
+                    <h2 class="text-xl font-black text-red-950">👑 Panel General de Administrador</h2>
+                    <p class="text-xs text-gray-500">Supervisión de locales, estado de red y operaciones en Curacaví y María Pinto.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-red-50 border border-red-200 p-3 rounded-xl">
+                        <p class="text-[10px] text-red-600 font-bold uppercase">Locales Registrados</p>
+                        <h3 id="admin-total-locales" class="text-lg font-black text-red-900 mt-0.5">0</h3>
+                    </div>
+                    <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-xl">
+                        <p class="text-[10px] text-yellow-700 font-bold uppercase">Estado de Red</p>
+                        <h3 class="text-xs font-black text-yellow-900 mt-1">100% Operativa ⚡</h3>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-gray-700 uppercase mb-2">Listado de Locales en la Plataforma</h3>
+                    <div id="admin-stores-list" class="space-y-2">
+                        <p class="text-xs text-gray-400 text-center py-4">Cargando resumen de locales...</p>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl space-y-2 text-xs text-amber-900">
+                    <p class="font-bold">💡 Herramienta de Control Directo:</p>
+                    <p>Desde aquí puedes supervisar qué comercios se encuentran abiertos y revisar la consistencia de los catálogos en Supabase sin salir de la interfaz.</p>
                 </div>
             </div>
         </div>
@@ -394,6 +449,7 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const CLAVE_DRIVER_SECRETA = 'altoke2026';
+        const CLAVE_ADMIN_SECRETA = 'altokeadmin2026';
         let carrito = [];
         let localActual = null;
         let trackingMap = null;
@@ -497,6 +553,54 @@
             } else {
                 alert('❌ Clave incorrecta.');
             }
+        }
+
+        function verSeccionAdminLogin() {
+            ocultarTodo();
+            document.getElementById('admin-login-view').classList.remove('hidden');
+            document.getElementById('admin-password').value = '';
+        }
+
+        async function verificarClaveAdmin() {
+            const claveIngresada = document.getElementById('admin-password').value.trim();
+            if (claveIngresada === CLAVE_ADMIN_SECRETA) {
+                ocultarTodo();
+                document.getElementById('admin-view').classList.remove('hidden');
+                cargarPanelAdministradorGeneral();
+            } else {
+                alert('❌ Clave de administrador incorrecta.');
+            }
+        }
+
+        async function cargarPanelAdministradorGeneral() {
+            const container = document.getElementById('admin-stores-list');
+            container.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">Cargando comercios...</p>`;
+
+            const { data: stores, error } = await supabaseClient
+                .from('stores')
+                .select('*');
+
+            if (error || !stores) {
+                container.innerHTML = `<p class="text-xs text-red-500 text-center">Error al cargar la información.</p>`;
+                return;
+            }
+
+            document.getElementById('admin-total-locales').innerText = stores.length;
+            container.innerHTML = '';
+            stores.forEach(store => {
+                const item = document.createElement('div');
+                item.className = 'flex justify-between items-center p-3 bg-gray-50 border border-gray-200 rounded-xl';
+                item.innerHTML = `
+                    <div>
+                        <p class="font-bold text-xs text-gray-800">${store.name}</p>
+                        <p class="text-[11px] text-gray-500">📍 ${store.comuna || 'General'} | 🕒 ${store.horario || 'Sin horario'}</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${store.is_open ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                        ${store.is_open ? '● Abierto' : '✕ Cerrado'}
+                    </span>
+                `;
+                container.appendChild(item);
+            });
         }
 
         function verSeccionComercioLogin() {
@@ -642,6 +746,8 @@
             document.getElementById('driver-view').classList.add('hidden');
             document.getElementById('comercio-login-view').classList.add('hidden');
             document.getElementById('comercio-stock-view').classList.add('hidden');
+            document.getElementById('admin-login-view').classList.add('hidden');
+            document.getElementById('admin-view').classList.add('hidden');
             document.getElementById('client-tracking-view').classList.add('hidden');
             document.getElementById('cart-bar').classList.add('hidden');
         }
@@ -854,7 +960,6 @@
             const p = document.getElementById('step-preparacion');
             const c = document.getElementById('step-camino');
 
-            // Reset estilos
             r.className = "p-2.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-400 text-xs font-bold transition";
             p.className = "p-2.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-400 text-xs font-bold transition";
             c.className = "p-2.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-400 text-xs font-bold transition";
@@ -874,7 +979,7 @@
         function mostrarPantallaSeguimientoCliente(nombreCliente, telCliente) {
             ocultarTodo();
             document.getElementById('client-tracking-view').classList.remove('hidden');
-            cambiarEstadoCliente('recibido'); // Estado inicial por defecto al enviar
+            cambiarEstadoCliente('recibido');
             
             const driverTel = "56912345678";
             const textoDriver = `Hola, soy ${nombreCliente} (${telCliente}). Mi pago está confirmado. ¿Cómo va mi pedido Altoke?`;
