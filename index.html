@@ -12,16 +12,13 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans pb-24">
 
-    <!-- Header Profesional con Logo Oficial y Acceso Admin -->
+    <!-- Header Profesional con Acceso Secreto al Admin en el Logo (Haz clic 3 veces en el logo) -->
     <header class="bg-red-600 text-white p-3 shadow-lg sticky top-0 z-50 border-b-4 border-yellow-400">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2.5 cursor-pointer" onclick="cargarLocalesDirecto()">
+            <div class="flex items-center gap-2.5 cursor-pointer" onclick="clickSecretoAdmin()">
                 <img src="https://bboowsfigdbafzrgugvp.supabase.co/storage/v1/object/public/logo/Gemini_Generated_Image_1kj49u1kj49u1kj4.jfif" alt="Altoke Logo" class="h-11 w-auto object-contain rounded-lg bg-white p-0.5 shadow-sm">
             </div>
             <div class="flex gap-1.5 items-center">
-                <button onclick="verSeccionAdminLogin()" class="text-[11px] bg-yellow-400 hover:bg-yellow-500 text-red-950 px-2 py-1.5 rounded-full font-black transition shadow-sm" title="Panel de Administrador">
-                    👑 Admin
-                </button>
                 <button onclick="verSeccionComercioLogin()" class="text-[11px] bg-red-700 hover:bg-red-800 text-white px-2.5 py-1.5 rounded-full font-semibold transition shadow-sm">
                     🏪 Locales
                 </button>
@@ -168,7 +165,7 @@
                 <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">🛵</div>
                 <h2 class="text-xl font-bold text-gray-900">Acceso de Repartidores</h2>
                 <p class="text-xs text-gray-500">Ingresa tu clave secreta para ver los pedidos.</p>
-                <input type="password" id="driver-password" placeholder="Clave (altoke2026)" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-red-500 outline-none">
+                <input type="password" id="driver-password" placeholder="Clave secreta" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-red-500 outline-none">
                 <button onclick="verificarClaveDriver()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow transition">
                     Ingresar al Panel 🚀
                 </button>
@@ -201,7 +198,7 @@
             </div>
         </div>
 
-        <!-- 6. Vista de Login de Comercios -->
+        <!-- 6. Vista de Login de Comercios (Segura con puntos) -->
         <div id="comercio-login-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver al inicio
@@ -251,7 +248,7 @@
             </div>
         </div>
 
-        <!-- 8. Vista de Login de Administrador General -->
+        <!-- 8. Vista de Login de Administrador General (Secreto y con puntitos) -->
         <div id="admin-login-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
                 ⬅ Volver al inicio
@@ -260,7 +257,8 @@
                 <div class="w-12 h-12 bg-yellow-100 text-yellow-700 rounded-full flex items-center justify-center mx-auto text-xl font-bold">👑</div>
                 <h2 class="text-xl font-bold text-gray-900">Portal de Administrador</h2>
                 <p class="text-xs text-gray-500">Ingresa tu clave maestra para revisar cambios y red.</p>
-                <input type="password" id="admin-password" placeholder="Clave Administrador (altokeadmin2026)" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-yellow-500 outline-none">
+                <!-- type="password" para que aparezcan puntitos seguros -->
+                <input type="password" id="admin-password" placeholder="Ingresa tu clave maestra" class="w-full border border-gray-300 rounded-xl p-3 text-sm text-center focus:ring-2 focus:ring-yellow-500 outline-none">
                 <button onclick="verificarClaveAdmin()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-red-950 font-black py-3 rounded-xl shadow transition">
                     Entrar al Panel de Control ⚡
                 </button>
@@ -449,7 +447,7 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const CLAVE_DRIVER_SECRETA = 'altoke2026';
-        const CLAVE_ADMIN_SECRETA = 'altokeadmin2026';
+        const CLAVE_ADMIN_SECRETA = 'altokeadmin2026'; // Cambia aquí tu clave secreta de admin si lo deseas
         let carrito = [];
         let localActual = null;
         let trackingMap = null;
@@ -459,9 +457,20 @@
         let lngSeleccionada = -71.1328;
         let costoEnvioActual = 0; 
         let storeActualId = null;
+        let clicksLogoAdmin = 0;
 
         window.onload = function() {
             cargarLocalesDirecto();
+        }
+
+        // Acceso secreto al hacer 3 clics rápidos en el logo de la esquina superior izquierda
+        function clickSecretoAdmin() {
+            clicksLogoAdmin++;
+            if (clicksLogoAdmin >= 3) {
+                clicksLogoAdmin = 0;
+                verSeccionAdminLogin();
+            }
+            setTimeout(() => { clicksLogoAdmin = 0; }, 1000); // Resetea si pasa 1 segundo
         }
 
         async function cargarLocalesDirecto() {
