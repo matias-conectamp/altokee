@@ -101,7 +101,7 @@
         <!-- 2. Menú del Local -->
         <div id="menu-view" class="hidden">
             <button onclick="volverALocales()" class="text-sm text-red-600 font-semibold mb-3 flex items-center hover:underline">
-                ⬅ Volver a los locales
+                ⬅ Volver al los locales
             </button>
             
             <div class="relative rounded-2xl overflow-hidden shadow-md mb-4 border border-gray-200 bg-white">
@@ -339,23 +339,19 @@
             <div class="space-y-3">
                 <input type="text" id="cliente-nombre" placeholder="Tu Nombre (Ej. Juan Pérez)" class="w-full border border-gray-300 rounded-xl p-3 text-sm">
                 <input type="text" id="cliente-telefono" placeholder="Tu Teléfono (+569...)" class="w-full border border-gray-300 rounded-xl p-3 text-sm">
-                <input type="text" id="cliente-direccion" placeholder="Dirección referencial (Ej. Parcela 12)" class="w-full border border-gray-300 rounded-xl p-3 text-sm">
+                <input type="text" id="cliente-direccion" placeholder="Dirección referencial (Ej. Parcela / Calle)" class="w-full border border-gray-300 rounded-xl p-3 text-sm">
 
-                <!-- Costos de Despacho Diferenciados por Comuna y Sector -->
+                <!-- Selector Dinámico de Localidades de María Pinto -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">📍 Sector de Despacho / Entrega</label>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">📍 Sector / Localidad de Entrega</label>
                     <select id="selector-sector-envio" onchange="cambiarSectorEnvio()" class="w-full border border-gray-300 rounded-xl p-3 text-sm bg-white font-medium">
-                        <option value="0">🏪 Retiro en Local (Gratis)</option>
-                        <option value="1500">🛵 Curacaví Urbano / Centro ($1.500)</option>
-                        <option value="2500">🛵 Curacaví Periférico / Parcelas ($2.500)</option>
-                        <option value="3500">🛵 María Pinto Centro / Sectores ($3.500)</option>
-                        <option value="5000">🛵 María Pinto Rural / Zonas Lejanas ($5.000)</option>
+                        <!-- Las opciones se cargan de forma automática según el local -->
                     </select>
                 </div>
 
                 <div>
                     <div class="flex justify-between items-center mb-1">
-                        <label class="block text-xs font-semibold text-gray-600">📍 Ubicación GPS (Mueve el pin o usa tu ubicación)</label>
+                        <label class="block text-xs font-semibold text-gray-600">📍 Ubicación GPS (Mueve el pin)</label>
                         <button type="button" onclick="obtenerUbicacionActualGPS()" class="text-[10px] bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1 rounded-lg transition">📍 Usar mi GPS actual</button>
                     </div>
                     <div id="checkout-map" class="w-full h-44 rounded-xl border z-10"></div>
@@ -401,7 +397,7 @@
         let trackingMap = null;
         let checkoutMap = null;
         let checkoutMarker = null;
-        let latSeleccionada = -33.4005; // Coordenada base Curacaví / María Pinto
+        let latSeleccionada = -33.4005; 
         let lngSeleccionada = -71.1328;
         let costoEnvioActual = 0; 
         let storeActualId = null;
@@ -410,7 +406,7 @@
         let categoriaSeleccionada = 'todos';
         let descuentoCupon = 0;
 
-        // Catálogo de Trinigas (Respaldo)
+        // Catálogo de Trinigas (Configurado con Envío Gratis en María Pinto)
         const trinigasRespaldo = {
             id: 'trinigas-oficial',
             name: 'Trinigas María Pinto',
@@ -421,6 +417,14 @@
             banner_url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800',
             categoria: 'gas',
             store_password: 'trinigas2026',
+            // Localidades de María Pinto con envíos independientes para Trinigas (¡Envío gratis en el pueblo!)
+            zonas_delivery: [
+                { nombre: '🏪 Retiro en Local Trinigas (Gratis)', precio: 0 },
+                { nombre: '🛵 María Pinto Pueblo / Centro (¡Envío Gratis!)', precio: 0 },
+                { nombre: '🛵 Villa Santa Luisa / Santa Emilia (¡Envío Gratis!)', precio: 0 },
+                { nombre: '🛵 Chorombo / Ibacache / Los Rulos ($2.000)', precio: 2000 },
+                { nombre: '🛵 Malalhue / Zonas Rurales Lejanas ($3.500)', precio: 3500 }
+            ],
             productos: [
                 { id: 't1', name: 'Carga Cilindro Gas Lipigas 5 kg', price: 16000, is_available: true, image_url: 'https://images.unsplash.com/photo-1585670149067-4f7bd5f7560d?w=100' },
                 { id: 't2', name: 'Carga Cilindro Gas Lipigas 11 kg', price: 22000, is_available: true, image_url: 'https://images.unsplash.com/photo-1585670149067-4f7bd5f7560d?w=100' },
@@ -615,7 +619,6 @@
             actualizarBarraCarrito();
         }
 
-        // --- GPS MEJORADO ---
         function obtenerUbicacionActualGPS() {
             if (!navigator.geolocation) {
                 alert('⚠️ Tu navegador no soporta geolocalización GPS.');
@@ -635,14 +638,45 @@
                     }
                 },
                 (error) => {
-                    alert('❌ No se pudo obtener tu ubicación GPS. Asegúrate de dar permisos en tu navegador.');
-                    console.error(error);
+                    alert('❌ No se pudo obtener tu ubicación GPS.');
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         }
 
+        // Carga dinámicamente las localidades de María Pinto y precios independientes según el local
+        function poblarSelectorZonasLocal() {
+            const select = document.getElementById('selector-sector-envio');
+            select.innerHTML = '';
+
+            let zonas = [];
+            if (localActual && localActual.zonas_delivery) {
+                zonas = localActual.zonas_delivery;
+            } else {
+                // Localidades estándar de María Pinto y Curacaví para locales con cobro por sector
+                zonas = [
+                    { nombre: '🏪 Retiro en Local (Gratis)', precio: 0 },
+                    { nombre: '🛵 María Pinto Pueblo / Centro ($2.500)', precio: 2500 },
+                    { nombre: '🛵 Villa Santa Luisa / Santa Emilia ($2.500)', precio: 2500 },
+                    { nombre: '🛵 Chorombo / Ibacache / Los Rulos ($3.500)', precio: 3500 },
+                    { nombre: '🛵 Malalhue / Las Mercedes / Zonas Rurales ($4.500)', precio: 4500 },
+                    { nombre: '🛵 Curacaví Urbano ($2.000)', precio: 2000 }
+                ];
+            }
+
+            zonas.forEach(z => {
+                const opt = document.createElement('option');
+                opt.value = z.precio;
+                opt.text = z.nombre;
+                select.appendChild(opt);
+            });
+
+            costoEnvioActual = zonas.length > 0 ? zonas[0].precio : 0;
+            actualizarBarraCarrito();
+        }
+
         function abrirCheckout() {
+            poblarSelectorZonasLocal();
             renderizarResumenCarrito();
             document.getElementById('checkout-modal').classList.remove('hidden');
             document.getElementById('cart-bar').classList.add('hidden');
@@ -650,16 +684,11 @@
             setTimeout(() => {
                 if (!checkoutMap) {
                     checkoutMap = L.map('checkout-map').setView([latSeleccionada, lngSeleccionada], 14);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '© OpenStreetMap'
-                    }).addTo(checkoutMap);
-
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(checkoutMap);
                     checkoutMarker = L.marker([latSeleccionada, lngSeleccionada], {draggable: true}).addTo(checkoutMap);
-                    
-                    checkoutMarker.on('dragend', function(e) {
-                        const pos = checkoutMarker.getLatLng();
-                        latSeleccionada = pos.lat;
-                        lngSeleccionada = pos.lng;
+                    checkoutMarker.on('dragend', (e) => {
+                        latSeleccionada = e.target.getLatLng().lat;
+                        lngSeleccionada = e.target.getLatLng().lng;
                     });
                 } else {
                     checkoutMap.invalidateSize();
@@ -823,7 +852,9 @@
                 `;
             });
             if (costoEnvioActual > 0) {
-                container.innerHTML += `<div class="flex justify-between items-center text-xs text-gray-500 py-1"><span>Despacho / Envío seleccionado</span><span>+$${costoEnvioActual.toLocaleString('es-CL')}</span></div>`;
+                container.innerHTML += `<div class="flex justify-between items-center text-xs text-gray-500 py-1"><span>Despacho / Sector seleccionado</span><span>+$${costoEnvioActual.toLocaleString('es-CL')}</span></div>`;
+            } else {
+                container.innerHTML += `<div class="flex justify-between items-center text-xs text-emerald-600 font-bold py-1"><span>Despacho / Retiro</span><span>¡Gratis!</span></div>`;
             }
             if (descuentoCupon > 0) {
                 container.innerHTML += `<div class="flex justify-between items-center text-xs text-emerald-600 font-bold py-1"><span>Descuento Cupón</span><span>-$${descuentoCupon.toLocaleString('es-CL')}</span></div>`;
