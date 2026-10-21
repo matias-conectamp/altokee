@@ -53,7 +53,7 @@
                 <p class="text-xs text-red-700 mt-0.5 font-medium">Curacaví y María Pinto</p>
             </div>
 
-            <!-- SECCIÓN 4: Categorías de Negocios (Filtros por Tipo) -->
+            <!-- Categorías de Negocios (Filtros por Tipo) -->
             <div class="mb-4">
                 <p class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Filtrar por Categoría</p>
                 <div class="grid grid-cols-4 gap-2">
@@ -72,7 +72,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 1: Historial de Pedidos Recientes (Re-pedido con 1 clic) -->
+            <!-- Historial de Pedidos Recientes (Re-pedido con 1 clic) -->
             <div id="historial-pedidos-section" class="hidden mb-4 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm space-y-2">
                 <div class="flex justify-between items-center">
                     <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wide">📦 Tus Pedidos Recientes (Re-pedir)</h3>
@@ -326,7 +326,7 @@
                 <div id="cart-items-summary" class="space-y-2 max-h-36 overflow-y-auto border-b pb-3 text-sm"></div>
             </div>
 
-            <!-- SECCIÓN 3: Sistema de Cupones y Promociones -->
+            <!-- Sistema de Cupones -->
             <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2">
                 <label class="block text-xs font-bold text-gray-700 uppercase">🎟️ ¿Tienes un código promocional?</label>
                 <div class="flex gap-2">
@@ -339,24 +339,26 @@
             <div class="space-y-3">
                 <input type="text" id="cliente-nombre" placeholder="Tu Nombre (Ej. Juan Pérez)" class="w-full border border-gray-300 rounded-xl p-3 text-sm">
                 <input type="text" id="cliente-telefono" placeholder="Tu Teléfono (+569...)" class="w-full border border-gray-300 rounded-xl p-3 text-sm">
-                <input type="text" id="cliente-direccion" placeholder="Dirección referencial" class="w-full border border-gray-300 rounded-xl p-3 text-sm">
+                <input type="text" id="cliente-direccion" placeholder="Dirección referencial (Ej. Parcela 12)" class="w-full border border-gray-300 rounded-xl p-3 text-sm">
 
+                <!-- Costos de Despacho Diferenciados por Comuna y Sector -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">📍 Tipo de Despacho o Retiro</label>
-                    <select id="selector-sector-envio" onchange="cambiarSectorEnvio()" class="w-full border border-gray-300 rounded-xl p-3 text-sm bg-white">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">📍 Sector de Despacho / Entrega</label>
+                    <select id="selector-sector-envio" onchange="cambiarSectorEnvio()" class="w-full border border-gray-300 rounded-xl p-3 text-sm bg-white font-medium">
                         <option value="0">🏪 Retiro en Local (Gratis)</option>
                         <option value="1500">🛵 Curacaví Urbano / Centro ($1.500)</option>
-                        <option value="2500">🛵 Parcelas / Periféricos ($2.500)</option>
-                        <option value="3500">🛵 María Pinto / Sectores Rurales ($3.500)</option>
+                        <option value="2500">🛵 Curacaví Periférico / Parcelas ($2.500)</option>
+                        <option value="3500">🛵 María Pinto Centro / Sectores ($3.500)</option>
+                        <option value="5000">🛵 María Pinto Rural / Zonas Lejanas ($5.000)</option>
                     </select>
                 </div>
 
                 <div>
                     <div class="flex justify-between items-center mb-1">
-                        <label class="block text-xs font-semibold text-gray-600">📍 Ubicación exacta (GPS)</label>
-                        <button type="button" onclick="obtenerUbicacionActualGPS()" class="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-lg">📍 Usar mi GPS</button>
+                        <label class="block text-xs font-semibold text-gray-600">📍 Ubicación GPS (Mueve el pin o usa tu ubicación)</label>
+                        <button type="button" onclick="obtenerUbicacionActualGPS()" class="text-[10px] bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1 rounded-lg transition">📍 Usar mi GPS actual</button>
                     </div>
-                    <div id="checkout-map" class="w-full h-36 rounded-xl border z-10"></div>
+                    <div id="checkout-map" class="w-full h-44 rounded-xl border z-10"></div>
                 </div>
 
                 <div>
@@ -386,7 +388,7 @@
         </div>
     </div>
 
-    <!-- Script Principal con Respaldo Automático de Trinigas -->
+    <!-- Script Principal -->
     <script>
         const SUPABASE_URL = 'https://bboowsfigdbafzrgugvp.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_vFh5RhnJ-EywdawMZsLMfw_1dMeBx5R';
@@ -399,7 +401,7 @@
         let trackingMap = null;
         let checkoutMap = null;
         let checkoutMarker = null;
-        let latSeleccionada = -33.4005;
+        let latSeleccionada = -33.4005; // Coordenada base Curacaví / María Pinto
         let lngSeleccionada = -71.1328;
         let costoEnvioActual = 0; 
         let storeActualId = null;
@@ -408,7 +410,7 @@
         let categoriaSeleccionada = 'todos';
         let descuentoCupon = 0;
 
-        // Catálogo oficial de Trinigas (Respaldo automático integrado)[cite: 1, 2]
+        // Catálogo de Trinigas (Respaldo)
         const trinigasRespaldo = {
             id: 'trinigas-oficial',
             name: 'Trinigas María Pinto',
@@ -463,15 +465,10 @@
             const container = document.getElementById('stores-container');
             container.innerHTML = `<p class="text-gray-400 text-center py-8 text-sm">Cargando locales...</p>`;
 
-            const { data: stores, error } = await supabaseClient
-                .from('stores')
-                .select('*');
-
+            const { data: stores } = await supabaseClient.from('stores').select('*');
             let localesFinales = stores ? [...stores] : [];
 
-            // Inyectar Trinigas si no se encuentra en Supabase
-            const existeTrinigas = localesFinales.some(s => s.name && s.name.toLowerCase().includes('trinigas'));
-            if (!existeTrinigas) {
+            if (!localesFinales.some(s => s.name && s.name.toLowerCase().includes('trinigas'))) {
                 localesFinales.push(trinigasRespaldo);
             }
 
@@ -618,6 +615,60 @@
             actualizarBarraCarrito();
         }
 
+        // --- GPS MEJORADO ---
+        function obtenerUbicacionActualGPS() {
+            if (!navigator.geolocation) {
+                alert('⚠️ Tu navegador no soporta geolocalización GPS.');
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    latSeleccionada = position.coords.latitude;
+                    lngSeleccionada = position.coords.longitude;
+
+                    if (checkoutMap && checkoutMarker) {
+                        const nuevaPos = [latSeleccionada, lngSeleccionada];
+                        checkoutMap.setView(nuevaPos, 16);
+                        checkoutMarker.setLatLng(nuevaPos);
+                        alert('📍 ¡Ubicación GPS obtenida con éxito!');
+                    }
+                },
+                (error) => {
+                    alert('❌ No se pudo obtener tu ubicación GPS. Asegúrate de dar permisos en tu navegador.');
+                    console.error(error);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
+        function abrirCheckout() {
+            renderizarResumenCarrito();
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            document.getElementById('cart-bar').classList.add('hidden');
+
+            setTimeout(() => {
+                if (!checkoutMap) {
+                    checkoutMap = L.map('checkout-map').setView([latSeleccionada, lngSeleccionada], 14);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap'
+                    }).addTo(checkoutMap);
+
+                    checkoutMarker = L.marker([latSeleccionada, lngSeleccionada], {draggable: true}).addTo(checkoutMap);
+                    
+                    checkoutMarker.on('dragend', function(e) {
+                        const pos = checkoutMarker.getLatLng();
+                        latSeleccionada = pos.lat;
+                        lngSeleccionada = pos.lng;
+                    });
+                } else {
+                    checkoutMap.invalidateSize();
+                    checkoutMap.setView([latSeleccionada, lngSeleccionada], 14);
+                    checkoutMarker.setLatLng([latSeleccionada, lngSeleccionada]);
+                }
+            }, 300);
+        }
+
         function abrirModalLegal() { document.getElementById('modal-legal').classList.remove('hidden'); }
         function cerrarModalLegal() { document.getElementById('modal-legal').classList.add('hidden'); }
         function abrirSuscripcionModal() { document.getElementById('suscripcion-modal').classList.remove('hidden'); }
@@ -686,7 +737,6 @@
                 });
             }
         }
-        function toggleStock() {}
 
         function ocultarTodo() {
             ['stores-view', 'menu-view', 'driver-login-view', 'driver-view', 'comercio-login-view', 'comercio-stock-view', 'admin-login-view', 'admin-view', 'client-tracking-view', 'cart-bar'].forEach(id => {
@@ -761,23 +811,6 @@
             document.getElementById('cart-total').innerText = `$${totalFinal.toLocaleString('es-CL')}`;
         }
 
-        function abrirCheckout() {
-            renderizarResumenCarrito();
-            document.getElementById('checkout-modal').classList.remove('hidden');
-            document.getElementById('cart-bar').classList.add('hidden');
-            setTimeout(() => {
-                if (!checkoutMap) {
-                    checkoutMap = L.map('checkout-map').setView([latSeleccionada, lngSeleccionada], 14);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(checkoutMap);
-                    checkoutMarker = L.marker([latSeleccionada, lngSeleccionada], {draggable: true}).addTo(checkoutMap);
-                    checkoutMarker.on('dragend', (e) => {
-                        latSeleccionada = e.target.getLatLng().lat;
-                        lngSeleccionada = e.target.getLatLng().lng;
-                    });
-                } else { checkoutMap.invalidateSize(); }
-            }, 300);
-        }
-
         function renderizarResumenCarrito() {
             const container = document.getElementById('cart-items-summary');
             container.innerHTML = '';
@@ -789,6 +822,9 @@
                     </div>
                 `;
             });
+            if (costoEnvioActual > 0) {
+                container.innerHTML += `<div class="flex justify-between items-center text-xs text-gray-500 py-1"><span>Despacho / Envío seleccionado</span><span>+$${costoEnvioActual.toLocaleString('es-CL')}</span></div>`;
+            }
             if (descuentoCupon > 0) {
                 container.innerHTML += `<div class="flex justify-between items-center text-xs text-emerald-600 font-bold py-1"><span>Descuento Cupón</span><span>-$${descuentoCupon.toLocaleString('es-CL')}</span></div>`;
             }
@@ -811,6 +847,7 @@
             const direccion = document.getElementById('cliente-direccion').value.trim();
             const metodoPago = document.getElementById('cliente-pago').value;
             const aceptoTerminos = document.getElementById('acepto-terminos').checked;
+            const selectSectorText = document.getElementById('selector-sector-envio').selectedOptions[0].text;
 
             if(!nombre || !direccion || !telefono) { alert('Completa tu nombre, teléfono y dirección.'); return; }
             if(!aceptoTerminos) { alert('Debes aceptar los Términos y Condiciones.'); return; }
@@ -818,11 +855,14 @@
             let subtotal = carrito.reduce((sum, i) => sum + Number(i.price), 0);
             let totalFinal = Math.max(0, subtotal + costoEnvioActual - descuentoCupon);
             let detalle = carrito.map(i => `• ${i.name} ($${Number(i.price).toLocaleString('es-CL')})`).join('\n');
+            let linkGoogleMaps = `https://maps.google.com/?q=${latSeleccionada},${lngSeleccionada}`;
 
             guardarPedidoEnHistorial(localActual ? localActual.name : 'Altoke', [...carrito], totalFinal);
 
             let mensaje = `¡Hola! ⚡ *Nuevo Pedido Altoke*\n\n` +
                           `👤 *Cliente:* ${nombre}\n📞 *Tel:* ${telefono}\n📍 *Dir:* ${direccion}\n` +
+                          `📦 *Sector / Envío:* ${selectSectorText}\n` +
+                          `🗺️ *Ubicación GPS:* ${linkGoogleMaps}\n` +
                           `💳 *Pago:* ${metodoPago}\n\n🛒 *Detalle:*\n${detalle}\n\n` +
                           `💰 *Total Final:* $${totalFinal.toLocaleString('es-CL')}`;
 
