@@ -146,14 +146,34 @@
             </div>
         </div>
 
-        <!-- Otros Logins -->
+        <!-- 5. Login de Comercios / Locales -->
         <div id="comercio-login-view" class="hidden">
             <button onclick="cargarLocalesDirecto()" class="text-sm text-red-600 font-semibold mb-3">⬅ Volver al inicio</button>
             <div class="bg-white p-6 rounded-2xl shadow-md text-center space-y-4 my-6">
+                <div class="w-12 h-12 bg-red-100 text-red-700 rounded-full flex items-center justify-center mx-auto text-xl font-bold">🏪</div>
                 <h2 class="text-xl font-bold">Portal de Comercios</h2>
+                <p class="text-xs text-gray-500">Gestiona tus pedidos y avisa cuando estén listos</p>
                 <input type="text" id="comercio-nombre-ingreso" placeholder="Nombre local (Ej: Trinigas)" class="w-full border rounded-xl p-3 text-sm text-center">
-                <input type="password" id="comercio-clave-ingreso" placeholder="Clave" class="w-full border rounded-xl p-3 text-sm text-center">
-                <button onclick="ingresarPortalComercio()" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl">Acceder</button>
+                <input type="password" id="comercio-clave-ingreso" placeholder="Clave local (ej: 2026)" class="w-full border rounded-xl p-3 text-sm text-center">
+                <button onclick="ingresarPortalComercio()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow">Acceder al Panel 🚀</button>
+            </div>
+        </div>
+
+        <!-- Panel del Comercio / Local -->
+        <div id="comercio-panel-view" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex justify-between items-center">
+                <div>
+                    <h2 id="comercio-title-name" class="text-base font-bold text-red-900">🏪 Panel de Local</h2>
+                    <p class="text-xs text-emerald-600 font-semibold">● Recibiendo Pedidos</p>
+                </div>
+                <button onclick="cargarLocalesDirecto()" class="text-xs bg-gray-100 hover:bg-gray-200 font-bold px-3 py-2 rounded-xl">Cerrar Sesión ✕</button>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-3">
+                <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wide">📦 Pedidos Activos para Preparar</h3>
+                <div id="comercio-orders-list" class="space-y-3">
+                    <p class="text-xs text-gray-400 text-center py-6">No hay pedidos pendientes.</p>
+                </div>
             </div>
         </div>
 
@@ -274,6 +294,7 @@
         };
 
         let driverActual = "";
+        let comercioActual = "";
         let filtroVistaDriver = "bolsa"; 
         let carrito = [];
         let localActual = null;
@@ -612,15 +633,21 @@
             if (totalEnviosEl) totalEnviosEl.innerText = misEntregas.length;
             if (totalComisionEl) totalComisionEl.innerText = `$${totalComision.toLocaleString('es-CL')}`;
 
-            let pedidosFiltrados = pedidos.filter(p => filtroVistaDriver === 'bolsa' ? p.asignadoA === "LIBRE" : p.asignadoA === driverActual);
+            let pedidosFiltrados = pedidos.filter(p => {
+                // El driver solo ve los pedidos que ya están listos por el local
+                if (!p.pedidoListo) return false;
+                if (filtroVistaDriver === 'bolsa') return p.asignadoA === "LIBRE";
+                return p.asignadoA === driverActual;
+            });
 
             if (pedidosFiltrados.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl border text-center text-gray-400 text-xs">${filtroVistaDriver === 'bolsa' ? 'No hay nuevos pedidos en la bolsa.' : 'No tienes pedidos en ruta actualmente.'}</div>`;
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl border text-center text-gray-400 text-xs">${filtroVistaDriver === 'bolsa' ? 'No hay pedidos listos en la bolsa todavía.' : 'No tienes pedidos en ruta actualmente.'}</div>`;
                 return;
             }
 
             container.innerHTML = '';
             pedidos.forEach((p, index) => {
+                if (!p.pedidoListo) return;
                 if (filtroVistaDriver === 'bolsa' && p.asignadoA !== "LIBRE") return;
                 if (filtroVistaDriver === 'mios' && p.asignadoA !== driverActual) return;
 
@@ -642,7 +669,7 @@
                     <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2">
                         <div class="flex justify-between items-center border-b pb-2">
                             <span class="text-[10px] bg-red-100 text-red-800 font-bold px-2.5 py-0.5 rounded-full">🏪 ${p.local}</span>
-                            <span class="text-[10px] text-gray-400">${p.fecha}</span>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">✅ Pedido Listo para Retirar</span>
                         </div>
                         <div class="text-xs space-y-1">
                             <p><b>👤 Cliente:</b> ${p.nombre} (<a href="tel:${p.telefono}" class="text-red-600 underline">${p.telefono}</a>)</p>
@@ -678,6 +705,79 @@
             localStorage.setItem('altoke_pedidos_activos', JSON.stringify(pedidos));
             cargarPanelRepartidor();
             alert('✅ Pedido completado y sumado a tus comisiones.');
+        }
+
+        // --- SISTEMA DE COMERCIOS / LOCALES ---
+        function verSeccionComercioLogin() {
+            ocultarTodo();
+            const comercioLogin = document.getElementById('comercio-login-view');
+            if (comercioLogin) comercioLogin.classList.remove('hidden');
+        }
+
+        function ingresarPortalComercio() {
+            const inputNombre = document.getElementById('comercio-nombre-ingreso');
+            const inputClave = document.getElementById('comercio-clave-ingreso');
+            if (!inputNombre || !inputClave) return;
+
+            const nombreLocal = inputNombre.value.trim();
+            const claveLocal = inputClave.value.trim();
+
+            if (nombreLocal.length > 0 && claveLocal.length > 0) {
+                comercioActual = nombreLocal;
+                ocultarTodo();
+                const comercioView = document.getElementById('comercio-panel-view');
+                const comercioTitle = document.getElementById('comercio-title-name');
+                if (comercioView) comercioView.classList.remove('hidden');
+                if (comercioTitle) comercioTitle.innerText = `🏪 Panel del Local: ${comercioActual}`;
+                cargarPanelComercio();
+            } else {
+                alert('⚠️ Ingresa el nombre del local y su clave.');
+            }
+        }
+
+        function cargarPanelComercio() {
+            const container = document.getElementById('comercio-orders-list');
+            if (!container) return;
+            let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
+
+            let pedidosLocal = pedidos.filter(p => p.local.toLowerCase().includes(comercioActual.toLowerCase()));
+
+            if (pedidosLocal.length === 0) {
+                container.innerHTML = `<div class="bg-gray-50 p-6 rounded-2xl border text-center text-gray-400 text-xs">No hay pedidos recientes para este local. (Prueba haciendo un pedido de prueba seleccionando tu local).</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            pedidos.forEach((p, index) => {
+                if (!p.local.toLowerCase().includes(comercioActual.toLowerCase())) return;
+
+                let estadoBoton = p.pedidoListo 
+                    ? `<span class="bg-emerald-100 text-emerald-800 font-bold px-3 py-2 rounded-xl text-xs">✅ Pedido ya marcado como Listo</span>`
+                    : `<button onclick="marcarPedidoListo(${index})" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl shadow transition text-xs">✅ Marcar Pedido Listo</button>`;
+
+                container.innerHTML += `
+                    <div class="border p-3.5 rounded-2xl bg-gray-50 space-y-2">
+                        <div class="flex justify-between items-center border-b pb-1.5">
+                            <span class="font-bold text-xs text-gray-800">Cliente: ${p.nombre}</span>
+                            <span class="text-[10px] text-gray-500">${p.fecha}</span>
+                        </div>
+                        <p class="text-xs text-gray-600"><b>Productos:</b><br>${p.productos.map(pr => `• ${pr.name}`).join('<br>')}</p>
+                        <p class="text-xs"><b>Destino:</b> ${p.direccion} (${p.sector})</p>
+                        <div class="flex justify-between items-center pt-1">
+                            <span class="text-xs font-black text-red-600">Total: $${p.total.toLocaleString('es-CL')}</span>
+                            ${estadoBoton}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function marcarPedidoListo(index) {
+            let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
+            pedidos[index].pedidoListo = true;
+            localStorage.setItem('altoke_pedidos_activos', JSON.stringify(pedidos));
+            alert('✅ ¡Pedido marcado como LISTO! Ahora los drivers disponibles podrán verlo y retirarlo.');
+            cargarPanelComercio();
         }
 
         function enviarPedidoWhatsApp() {
@@ -718,7 +818,8 @@
                 total: totalFinal,
                 pago: metodoPago,
                 gps: linkGoogleMaps,
-                asignadoA: "LIBRE"
+                asignadoA: "LIBRE",
+                pedidoListo: false
             });
 
             let sectorTexto = selectSector.selectedOptions[0] ? selectSector.selectedOptions[0].text : '';
@@ -750,16 +851,8 @@
             } else { alert('Clave incorrecta.'); }
         }
 
-        function verSeccionComercioLogin() { 
-            ocultarTodo(); 
-            const comercioLogin = document.getElementById('comercio-login-view');
-            if (comercioLogin) comercioLogin.classList.remove('hidden'); 
-        }
-
-        function ingresarPortalComercio() { alert('Portal de comercios activo.'); }
-        
         function ocultarTodo() { 
-            const ids = ['stores-view', 'menu-view', 'driver-login-view', 'driver-view', 'comercio-login-view', 'admin-login-view', 'admin-view', 'client-tracking-view', 'cart-bar'];
+            const ids = ['stores-view', 'menu-view', 'driver-login-view', 'driver-view', 'comercio-login-view', 'comercio-panel-view', 'admin-login-view', 'admin-view', 'client-tracking-view', 'cart-bar'];
             ids.forEach(id => { 
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden'); 
