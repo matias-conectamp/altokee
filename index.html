@@ -185,6 +185,15 @@
         </div>
     </div>
 
+    <!-- Modal Suscripción (Placeholder para evitar errores si se llama) -->
+    <div id="suscripcion-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+            <h3 class="text-base font-bold">⭐ Club Altoke Pro</h3>
+            <p class="text-xs text-gray-600">Próximamente disponible para unirte y disfrutar de beneficios exclusivos.</p>
+            <button onclick="cerrarSuscripcionModal()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-xl text-xs">Cerrar</button>
+        </div>
+    </div>
+
     <!-- Barra Flotante Carrito -->
     <div id="cart-bar" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-40">
         <div class="max-w-md mx-auto flex justify-between items-center">
@@ -196,7 +205,7 @@
         </div>
     </div>
 
-    <!-- Modal Checkout (Desglose Claro y Transparente) -->
+    <!-- Modal Checkout -->
     <div id="checkout-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
@@ -277,7 +286,6 @@
         let categoriaSeleccionada = 'todos';
         let descuentoCupon = 0;
 
-        // Trinigas configurado con Envío Gratis en el pueblo y precios independientes por localidad
         const trinigasRespaldo = {
             id: 'trinigas-oficial',
             name: 'Trinigas María Pinto',
@@ -428,7 +436,6 @@
             }, () => { alert('No se pudo obtener el GPS.'); }, { enableHighAccuracy: true });
         }
 
-        // Carga dinámicamente las zonas y tarifas exclusivas de cada local
         function poblarSelectorZonasLocal() {
             const select = document.getElementById('selector-sector-envio');
             select.innerHTML = '';
@@ -496,221 +503,4 @@
 
         function cerrarCheckout() { document.getElementById('checkout-modal').classList.add('hidden'); if(carrito.length > 0) document.getElementById('cart-bar').classList.remove('hidden'); }
         function actualizarBarraCarrito() {
-            const subtotal = carrito.reduce((sum, item) => sum + Number(item.price), 0);
-            const totalFinal = Math.max(0, subtotal + costoEnvioActual - descuentoCupon);
-            if (carrito.length === 0) { document.getElementById('cart-bar').classList.add('hidden'); return; }
-            document.getElementById('cart-bar').classList.remove('hidden');
-            document.getElementById('cart-total').innerText = `$${totalFinal.toLocaleString('es-CL')}`;
-        }
-        function eliminarDelCarrito(index) { carrito.splice(index, 1); if (carrito.length === 0) cerrarCheckout(); else abrirCheckout(); }
-
-        // --- SISTEMA DE REPARTIDORES CON BLOQUEO EXCLUSIVO ---
-        function verSeccionDriverLogin() { ocultarTodo(); document.getElementById('driver-login-view').classList.remove('hidden'); }
-
-        function verificarClaveDriver() {
-            const usuario = document.getElementById('driver-user-input').value.trim().toLowerCase();
-            const clave = document.getElementById('driver-password').value.trim();
-
-            if (driversAutorizados[usuario] && driversAutorizados[usuario] === clave) {
-                driverActual = usuario.toUpperCase();
-                ocultarTodo();
-                document.getElementById('driver-view').classList.remove('hidden');
-                document.getElementById('driver-title-name').innerText = `🛵 Repartidor: ${driverActual}`;
-                cargarPanelRepartidor();
-            } else {
-                alert('❌ Usuario o clave incorrecta (ej: carlos / carlos2026).');
-            }
-        }
-
-        function cambiarFiltroDriver(filtro) {
-            filtroVistaDriver = filtro;
-            const btnBolsa = document.getElementById('tab-bolsa');
-            const btnMios = document.getElementById('tab-mios');
-            if (filtro === 'bolsa') {
-                btnBolsa.className = "bg-red-600 text-white text-xs font-bold py-2 rounded-xl shadow-sm";
-                btnMios.className = "bg-white text-gray-700 border text-xs font-bold py-2 rounded-xl shadow-sm";
-            } else {
-                btnMios.className = "bg-red-600 text-white text-xs font-bold py-2 rounded-xl shadow-sm";
-                btnBolsa.className = "bg-white text-gray-700 border text-xs font-bold py-2 rounded-xl shadow-sm";
-            }
-            cargarPanelRepartidor();
-        }
-
-        function guardarPedidoParaRepartidor(pedidoData) {
-            let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
-            pedidos.unshift(pedidoData);
-            localStorage.setItem('altoke_pedidos_activos', JSON.stringify(pedidos));
-        }
-
-        function cargarPanelRepartidor() {
-            const container = document.getElementById('driver-orders-list');
-            let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
-
-            let misEntregas = pedidos.filter(p => p.asignadoA === driverActual);
-            let totalComision = misEntregas.reduce((sum, p) => sum + (p.costoEnvio || 0), 0);
-
-            document.getElementById('driver-total-envios').innerText = misEntregas.length;
-            document.getElementById('driver-total-comision').innerText = `$${totalComision.toLocaleString('es-CL')}`;
-
-            let pedidosFiltrados = pedidos.filter(p => filtroVistaDriver === 'bolsa' ? p.asignadoA === "LIBRE" : p.asignadoA === driverActual);
-
-            if (pedidosFiltrados.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl border text-center text-gray-400 text-xs">${filtroVistaDriver === 'bolsa' ? 'No hay nuevos pedidos en la bolsa.' : 'No tienes pedidos en ruta actualmente.'}</div>`;
-                return;
-            }
-
-            container.innerHTML = '';
-            pedidos.forEach((p, index) => {
-                if (filtroVistaDriver === 'bolsa' && p.asignadoA !== "LIBRE") return;
-                if (filtroVistaDriver === 'mios' && p.asignadoA !== driverActual) return;
-
-                let btnAccion = '';
-                if (p.asignadoA === "LIBRE") {
-                    btnAccion = `<button onclick="tomarPedido(${index})" class="bg-yellow-500 hover:bg-yellow-600 text-red-950 font-bold px-4 py-2 rounded-xl shadow transition text-xs">⚡ ¡Tomar este Pedido!</button>`;
-                } else if (p.asignadoA === driverActual) {
-                    btnAccion = `
-                        <div class="flex gap-2">
-                            <a href="${p.gps}" target="_blank" class="bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">🗺️ GPS</a>
-                            <button onclick="marcarEntregado(${index})" class="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">✓ Entregar</button>
-                        </div>
-                    `;
-                } else {
-                    btnAccion = `<span class="text-[11px] text-amber-700 font-bold bg-amber-50 px-2 py-1 rounded-lg">🔒 Tomado por ${p.asignadoA}</span>`;
-                }
-
-                container.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2">
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <span class="text-[10px] bg-red-100 text-red-800 font-bold px-2.5 py-0.5 rounded-full">🏪 ${p.local}</span>
-                            <span class="text-[10px] text-gray-400">${p.fecha}</span>
-                        </div>
-                        <div class="text-xs space-y-1">
-                            <p><b>👤 Cliente:</b> ${p.nombre} (<a href="tel:${p.telefono}" class="text-red-600 underline">${p.telefono}</a>)</p>
-                            <p><b>📍 Dirección:</b> ${p.direccion} (${p.sector})</p>
-                            <p class="text-gray-600"><b>Productos:</b><br>${p.productos.map(pr => `• ${pr.name}`).join('<br>')}</p>
-                            <p class="text-emerald-700 font-bold">💰 Comisión de despacho: $${p.costoEnvio.toLocaleString('es-CL')}</p>
-                        </div>
-                        <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs font-bold">
-                            <span>Total a cobrar: <span class="text-red-600">$${p.total.toLocaleString('es-CL')}</span> (${p.pago})</span>
-                            ${btnAccion}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function tomarPedido(index) {
-            let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
-            if (pedidos[index].asignadoA !== "LIBRE") {
-                alert('⚠️ Este pedido ya fue tomado por otro repartidor.');
-                cargarPanelRepartidor();
-                return;
-            }
-            pedidos[index].asignadoA = driverActual;
-            localStorage.setItem('altoke_pedidos_activos', JSON.stringify(pedidos));
-            alert(`🚀 ¡Pedido asignado a ti (${driverActual})!`);
-            cambiarFiltroDriver('mios');
-        }
-
-        function marcarEntregado(index) {
-            let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
-            pedidos.splice(index, 1);
-            localStorage.setItem('altoke_pedidos_activos', JSON.stringify(pedidos));
-            cargarPanelRepartidor();
-            alert('✅ Pedido completado y sumado a tus comisiones.');
-        }
-
-        function enviarPedidoWhatsApp() {
-            const nombre = document.getElementById('cliente-nombre').value.trim();
-            const telefono = document.getElementById('cliente-telefono').value.trim();
-            const direccion = document.getElementById('cliente-direccion').value.trim();
-            const metodoPago = document.getElementById('cliente-pago').value;
-            const aceptoTerminos = document.getElementById('acepto-terminos').checked;
-            const selectSector = document.getElementById('selector-sector-envio');
-
-            if(!nombre || !direccion || !telefono) { alert('Completa nombre, teléfono y dirección.'); return; }
-            if(!aceptoTerminos) { alert('Debes aceptar los Términos y Condiciones.'); return; }
-
-            let subtotal = carrito.reduce((sum, i) => sum + Number(i.price), 0);
-            let totalFinal = Math.max(0, subtotal + costoEnvioActual - descuentoCupon);
-            let detalle = carrito.map(i => `• ${i.name} ($${Number(i.price).toLocaleString('es-CL')})`).join('\n');
-            let linkGoogleMaps = `https://maps.google.com/?q=${latSeleccionada},${lngSeleccionada}`;
-
-            guardarPedidoEnHistorial(localActual ? localActual.name : 'Altoke', [...carrito], totalFinal);
-            
-            guardarPedidoParaRepartidor({
-                fecha: new Date().toLocaleDateString('es-CL', {day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit'}),
-                local: localActual ? localActual.name : 'Altoke',
-                nombre: nombre,
-                telefono: telefono,
-                direccion: direccion,
-                sector: selectSector.selectedOptions[0].text,
-                costoEnvio: costoEnvioActual,
-                productos: [...carrito],
-                total: totalFinal,
-                pago: metodoPago,
-                gps: linkGoogleMaps,
-                asignadoA: "LIBRE"
-            });
-
-            let mensaje = `¡Hola! ⚡ *Nuevo Pedido Altoke*\n\n👤 *Cliente:* ${nombre}\n📞 *Tel:* ${telefono}\n📍 *Dir:* ${direccion}\n📦 *Sector:* ${selectSector.selectedOptions[0].text}\n🗺️ *GPS:* ${linkGoogleMaps}\n💳 *Pago:* ${metodoPago}\n\n🛒 *Detalle:*\n${detalle}\n\n💰 *Total:* $${totalFinal.toLocaleString('es-CL')}`;
-
-            let telLocal = localActual && localActual.whatsapp_phone ? localActual.whatsapp_phone.replace(/[^0-9]/g, '') : '56935038242';
-            window.open(`https://wa.me/${telLocal}?text=${encodeURIComponent(mensaje)}`, '_blank');
-            
-            cerrarCheckout();
-            carrito = [];
-            descuentoCupon = 0;
-            ocultarTodo();
-            document.getElementById('client-tracking-view').classList.remove('hidden');
-        }
-
-        function verSeccionAdminLogin() { ocultarTodo(); document.getElementById('admin-login-view').classList.remove('hidden'); }
-        async function verificarClaveAdmin() {
-            if (document.getElementById('admin-password').value.trim() === 'altokeadmin2026') {
-                ocultarTodo(); document.getElementById('admin-view').classList.remove('hidden');
-            } else { alert('Clave incorrecta.'); }
-        }
-
-        function verSeccionComercioLogin() { ocultarTodo(); document.getElementById('comercio-login-view').classList.remove('hidden'); }
-        function ingresarPortalComercio() { alert('Portal de comercios activo.'); }
-        function ocultarTodo() { ['stores-view', 'menu-view', 'driver-login-view', 'driver-view', 'comercio-login-view', 'comercio-stock-view', 'admin-login-view', 'admin-view', 'client-tracking-view', 'cart-bar'].forEach(id => { document.getElementById(id).classList.add('hidden'); }); }
-        function volverALocales() { document.getElementById('menu-view').classList.add('hidden'); document.getElementById('stores-view').classList.remove('hidden'); if(carrito.length > 0) document.getElementById('cart-bar').classList.remove('hidden'); }
-
-        async function verMenu(store) {
-            localActual = store;
-            document.getElementById('stores-view').classList.add('hidden');
-            document.getElementById('menu-view').classList.remove('hidden');
-            document.getElementById('nombre-local-titulo').innerText = store.name;
-            document.getElementById('whatsapp-local-info').innerText = `WhatsApp: ${store.whatsapp_phone} | Horario: ${store.horario}`;
-            document.getElementById('local-banner-img').src = store.banner_url || 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=800';
-
-            const container = document.getElementById('products-container');
-            container.innerHTML = `<p class="text-gray-400 text-center py-8 text-sm">Cargando menú...</p>`;
-            let productosFinales = (store.id === 'trinigas-oficial') ? store.productos : (await supabaseClient.from('products').select('*').eq('store_id', store.id)).data || [];
-
-            if (productosFinales.length === 0) { container.innerHTML = `<div class="bg-white p-6 rounded-2xl border text-center text-xs">Sin productos.</div>`; return; }
-
-            container.innerHTML = '';
-            productosFinales.forEach(product => {
-                if(product.is_available === false) return;
-                container.innerHTML += `
-                    <div class="bg-white p-3 rounded-2xl shadow-sm border flex justify-between items-center gap-3">
-                        <div class="flex items-center gap-3">
-                            <img src="${product.image_url}" class="w-14 h-14 object-cover rounded-xl border">
-                            <div><h4 class="font-bold text-gray-900 text-sm">${product.name}</h4><p class="text-xs font-semibold text-red-600">$${Number(product.price).toLocaleString('es-CL')}</p></div>
-                        </div>
-                        <button onclick='agregarAlCarrito(${JSON.stringify(product)})' class="bg-red-50 text-red-700 font-bold text-xs px-3 py-2 rounded-xl border border-red-200">Agregar +</button>
-                    </div>
-                `;
-            });
-        }
-
-        function agregarAlCarrito(product) { carrito.push(product); actualizarBarraCarrito(); }
-        function abrirModalLegal() { document.getElementById('modal-legal').classList.remove('hidden'); }
-        function cerrarModalLegal() { document.getElementById('modal-legal').classList.add('hidden'); }
-        function abrirSuscripcionModal() { document.getElementById('suscripcion-modal').classList.remove('hidden'); }
-        function cerrarSuscripcionModal() { document.getElementById('suscripcion-modal').classList.add('hidden'); }
-    </script>
-</body>
-</html>
+            const subtotal = carrito.reduce((sum, item) => sum + Number(item.price),
