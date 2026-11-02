@@ -185,7 +185,7 @@
         </div>
     </div>
 
-    <!-- Modal Suscripción (Placeholder para evitar errores si se llama) -->
+    <!-- Modal Suscripción -->
     <div id="suscripcion-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
             <h3 class="text-base font-bold">⭐ Club Altoke Pro</h3>
@@ -328,18 +328,28 @@
 
         async function cargarLocalesDirecto() {
             ocultarTodo();
-            document.getElementById('stores-view').classList.remove('hidden');
+            const storesView = document.getElementById('stores-view');
+            if (storesView) storesView.classList.remove('hidden');
 
             const container = document.getElementById('stores-container');
-            container.innerHTML = `<p class="text-gray-400 text-center py-8 text-sm">Cargando locales...</p>`;
-
-            const { data: stores } = await supabaseClient.from('stores').select('*');
-            let localesFinales = stores ? [...stores] : [];
-            if (!localesFinales.some(s => s.name && s.name.toLowerCase().includes('trinigas'))) {
-                localesFinales.push(trinigasRespaldo);
+            if (container) {
+                container.innerHTML = `<p class="text-gray-400 text-center py-8 text-sm">Cargando locales...</p>`;
             }
-            listaLocalesGlobal = localesFinales;
-            renderizarLocales(localesFinales);
+
+            try {
+                const { data: stores, error } = await supabaseClient.from('stores').select('*');
+                let localesFinales = stores ? [...stores] : [];
+                
+                if (error || !localesFinales.some(s => s.name && s.name.toLowerCase().includes('trinigas'))) {
+                    localesFinales.push(trinigasRespaldo);
+                }
+                listaLocalesGlobal = localesFinales;
+                renderizarLocales(localesFinales);
+            } catch (e) {
+                console.error("Error conectando a Supabase, usando respaldo:", e);
+                listaLocalesGlobal = [trinigasRespaldo];
+                renderizarLocales(listaLocalesGlobal);
+            }
         }
 
         function verificarSiEstaAbierto(store) {
@@ -358,6 +368,7 @@
 
         function renderizarLocales(stores) {
             const container = document.getElementById('stores-container');
+            if (!container) return;
             container.innerHTML = '';
             let filtrados = stores.filter(store => {
                 if (categoriaSeleccionada === 'todos') return true;
@@ -405,6 +416,7 @@
         function cargarHistorialLocalStorage() {
             const sec = document.getElementById('historial-pedidos-section');
             const container = document.getElementById('historial-lista-container');
+            if (!sec || !container) return;
             let historial = JSON.parse(localStorage.getItem('altoke_historial') || '[]');
             if (historial.length === 0) { sec.classList.add('hidden'); return; }
             sec.classList.remove('hidden');
@@ -438,6 +450,7 @@
 
         function poblarSelectorZonasLocal() {
             const select = document.getElementById('selector-sector-envio');
+            if (!select) return;
             select.innerHTML = '';
             
             let zonas = [];
@@ -465,27 +478,35 @@
         function actualizarCalculosCheckout() {
             const subtotal = carrito.reduce((sum, item) => sum + Number(item.price), 0);
             const totalFinal = Math.max(0, subtotal + costoEnvioActual - descuentoCupon);
-            document.getElementById('sum-subtotal').innerText = `$${subtotal.toLocaleString('es-CL')}`;
-            document.getElementById('sum-envio').innerText = costoEnvioActual === 0 ? '¡Gratis!' : `+$${costoEnvioActual.toLocaleString('es-CL')}`;
-            document.getElementById('sum-total-final').innerText = `$${totalFinal.toLocaleString('es-CL')}`;
+            const sumSubtotal = document.getElementById('sum-subtotal');
+            const sumEnvio = document.getElementById('sum-envio');
+            const sumTotalFinal = document.getElementById('sum-total-final');
+            
+            if (sumSubtotal) sumSubtotal.innerText = `$${subtotal.toLocaleString('es-CL')}`;
+            if (sumEnvio) sumEnvio.innerText = costoEnvioActual === 0 ? '¡Gratis!' : `+$${costoEnvioActual.toLocaleString('es-CL')}`;
+            if (sumTotalFinal) sumTotalFinal.innerText = `$${totalFinal.toLocaleString('es-CL')}`;
             actualizarBarraCarrito();
         }
 
         function abrirCheckout() {
             poblarSelectorZonasLocal();
             const container = document.getElementById('cart-items-summary');
-            container.innerHTML = '';
-            carrito.forEach((item, index) => {
-                container.innerHTML += `
-                    <div class="flex justify-between items-center py-1">
-                        <span>${item.name}</span>
-                        <div class="flex items-center gap-2"><b>$${Number(item.price).toLocaleString('es-CL')}</b><button onclick="eliminarDelCarrito(${index})" class="text-red-600 font-bold px-1 bg-red-50 rounded">✕</button></div>
-                    </div>
-                `;
-            });
+            if (container) {
+                container.innerHTML = '';
+                carrito.forEach((item, index) => {
+                    container.innerHTML += `
+                        <div class="flex justify-between items-center py-1">
+                            <span>${item.name}</span>
+                            <div class="flex items-center gap-2"><b>$${Number(item.price).toLocaleString('es-CL')}</b><button onclick="eliminarDelCarrito(${index})" class="text-red-600 font-bold px-1 bg-red-50 rounded">✕</button></div>
+                        </div>
+                    `;
+                });
+            }
             actualizarCalculosCheckout();
-            document.getElementById('checkout-modal').classList.remove('hidden');
-            document.getElementById('cart-bar').classList.add('hidden');
+            const checkoutModal = document.getElementById('checkout-modal');
+            const cartBar = document.getElementById('cart-bar');
+            if (checkoutModal) checkoutModal.classList.remove('hidden');
+            if (cartBar) cartBar.classList.add('hidden');
 
             setTimeout(() => {
                 if (!checkoutMap) {
@@ -501,6 +522,315 @@
             }, 300);
         }
 
-        function cerrarCheckout() { document.getElementById('checkout-modal').classList.add('hidden'); if(carrito.length > 0) document.getElementById('cart-bar').classList.remove('hidden'); }
+        function cerrarCheckout() { 
+            const checkoutModal = document.getElementById('checkout-modal');
+            const cartBar = document.getElementById('cart-bar');
+            if (checkoutModal) checkoutModal.classList.add('hidden'); 
+            if(carrito.length > 0 && cartBar) cartBar.classList.remove('hidden'); 
+        }
+
         function actualizarBarraCarrito() {
-            const subtotal = carrito.reduce((sum, item) => sum + Number(item.price),
+            const subtotal = carrito.reduce((sum, item) => sum + Number(item.price), 0);
+            const totalFinal = Math.max(0, subtotal + costoEnvioActual - descuentoCupon);
+            const cartBar = document.getElementById('cart-bar');
+            const cartTotal = document.getElementById('cart-total');
+            
+            if (carrito.length === 0) { 
+                if (cartBar) cartBar.classList.add('hidden'); 
+                return; 
+            }
+            if (cartBar) cartBar.classList.remove('hidden');
+            if (cartTotal) cartTotal.innerText = `$${totalFinal.toLocaleString('es-CL')}`;
+        }
+
+        function eliminarDelCarrito(index) { 
+            carrito.splice(index, 1); 
+            if (carrito.length === 0) cerrarCheckout(); 
+            else abrirCheckout(); 
+        }
+
+        // --- SISTEMA DE REPARTIDORES ---
+        function verSeccionDriverLogin() { 
+            ocultarTodo(); 
+            const driverLogin = document.getElementById('driver-login-view');
+            if (driverLogin) driverLogin.classList.remove('hidden'); 
+        }
+
+        function verificarClaveDriver() {
+            const inputUser = document.getElementById('driver-user-input');
+            const inputPass = document.getElementById('driver-password');
+            if (!inputUser || !inputPass) return;
+            
+            const usuario = inputUser.value.trim().toLowerCase();
+            const clave = inputPass.value.trim();
+
+            if (driversAutorizados[usuario] && driversAutorizados[usuario] === clave) {
+                driverActual = usuario.toUpperCase();
+                ocultarTodo();
+                const driverView = document.getElementById('driver-view');
+                const driverTitle = document.getElementById('driver-title-name');
+                if (driverView) driverView.classList.remove('hidden');
+                if (driverTitle) driverTitle.innerText = `🛵 Repartidor: ${driverActual}`;
+                cargarPanelRepartidor();
+            } else {
+                alert('❌ Usuario o clave incorrecta (ej: carlos / carlos2026).');
+            }
+        }
+
+        function cambiarFiltroDriver(filtro) {
+            filtroVistaDriver = filtro;
+            const btnBolsa = document.getElementById('tab-bolsa');
+            const btnMios = document.getElementById('tab-mios');
+            if (!btnBolsa || !btnMios) return;
+            
+            if (filtro === 'bolsa') {
+                btnBolsa.className = "bg-red-600 text-white text-xs font-bold py-2 rounded-xl shadow-sm";
+                btnMios.className = "bg-white text-gray-700 border text-xs font-bold py-2 rounded-xl shadow-sm";
+            } else {
+                btnMios.className = "bg-red-600 text-white text-xs font-bold py-2 rounded-xl shadow-sm";
+                btnBolsa.className = "bg-white text-gray-700 border text-xs font-bold py-2 rounded-xl shadow-sm";
+            }
+            cargarPanelRepartidor();
+        }
+
+        function guardarPedidoParaRepartidor(pedidoData) {
+            let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
+            pedidos.unshift(pedidoData);
+            localStorage.setItem('altoke_pedidos_activos', JSON.stringify(pedidos));
+        }
+
+        function cargarPanelRepartidor() {
+            const container = document.getElementById('driver-orders-list');
+            if (!container) return;
+            let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
+
+            let misEntregas = pedidos.filter(p => p.asignadoA === driverActual);
+            let totalComision = misEntregas.reduce((sum, p) => sum + (p.costoEnvio || 0), 0);
+
+            const totalEnviosEl = document.getElementById('driver-total-envios');
+            const totalComisionEl = document.getElementById('driver-total-comision');
+            if (totalEnviosEl) totalEnviosEl.innerText = misEntregas.length;
+            if (totalComisionEl) totalComisionEl.innerText = `$${totalComision.toLocaleString('es-CL')}`;
+
+            let pedidosFiltrados = pedidos.filter(p => filtroVistaDriver === 'bolsa' ? p.asignadoA === "LIBRE" : p.asignadoA === driverActual);
+
+            if (pedidosFiltrados.length === 0) {
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl border text-center text-gray-400 text-xs">${filtroVistaDriver === 'bolsa' ? 'No hay nuevos pedidos en la bolsa.' : 'No tienes pedidos en ruta actualmente.'}</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            pedidos.forEach((p, index) => {
+                if (filtroVistaDriver === 'bolsa' && p.asignadoA !== "LIBRE") return;
+                if (filtroVistaDriver === 'mios' && p.asignadoA !== driverActual) return;
+
+                let btnAccion = '';
+                if (p.asignadoA === "LIBRE") {
+                    btnAccion = `<button onclick="tomarPedido(${index})" class="bg-yellow-500 hover:bg-yellow-600 text-red-950 font-bold px-4 py-2 rounded-xl shadow transition text-xs">⚡ ¡Tomar este Pedido!</button>`;
+                } else if (p.asignadoA === driverActual) {
+                    btnAccion = `
+                        <div class="flex gap-2">
+                            <a href="${p.gps}" target="_blank" class="bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">🗺️ GPS</a>
+                            <button onclick="marcarEntregado(${index})" class="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">✓ Entregar</button>
+                        </div>
+                    `;
+                } else {
+                    btnAccion = `<span class="text-[11px] text-amber-700 font-bold bg-amber-50 px-2 py-1 rounded-lg">🔒 Tomado por ${p.asignadoA}</span>`;
+                }
+
+                container.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2">
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="text-[10px] bg-red-100 text-red-800 font-bold px-2.5 py-0.5 rounded-full">🏪 ${p.local}</span>
+                            <span class="text-[10px] text-gray-400">${p.fecha}</span>
+                        </div>
+                        <div class="text-xs space-y-1">
+                            <p><b>👤 Cliente:</b> ${p.nombre} (<a href="tel:${p.telefono}" class="text-red-600 underline">${p.telefono}</a>)</p>
+                            <p><b>📍 Dirección:</b> ${p.direccion} (${p.sector})</p>
+                            <p class="text-gray-600"><b>Productos:</b><br>${p.productos.map(pr => `• ${pr.name}`).join('<br>')}</p>
+                            <p class="text-emerald-700 font-bold">💰 Comisión de despacho: $${p.costoEnvio.toLocaleString('es-CL')}</p>
+                        </div>
+                        <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs font-bold">
+                            <span>Total a cobrar: <span class="text-red-600">$${p.total.toLocaleString('es-CL')}</span> (${p.pago})</span>
+                            ${btnAccion}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function tomarPedido(index) {
+            let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
+            if (pedidos[index].asignadoA !== "LIBRE") {
+                alert('⚠️ Este pedido ya fue tomado por otro repartidor.');
+                cargarPanelRepartidor();
+                return;
+            }
+            pedidos[index].asignadoA = driverActual;
+            localStorage.setItem('altoke_pedidos_activos', JSON.stringify(pedidos));
+            alert(`🚀 ¡Pedido asignado a ti (${driverActual})!`);
+            cambiarFiltroDriver('mios');
+        }
+
+        function marcarEntregado(index) {
+            let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
+            pedidos.splice(index, 1);
+            localStorage.setItem('altoke_pedidos_activos', JSON.stringify(pedidos));
+            cargarPanelRepartidor();
+            alert('✅ Pedido completado y sumado a tus comisiones.');
+        }
+
+        function enviarPedidoWhatsApp() {
+            const inputNombre = document.getElementById('cliente-nombre');
+            const inputTel = document.getElementById('cliente-telefono');
+            const inputDir = document.getElementById('cliente-direccion');
+            const selectPago = document.getElementById('cliente-pago');
+            const checkTerminos = document.getElementById('acepto-terminos');
+            const selectSector = document.getElementById('selector-sector-envio');
+
+            if (!inputNombre || !inputTel || !inputDir || !checkTerminos || !selectSector) return;
+
+            const nombre = inputNombre.value.trim();
+            const telefono = inputTel.value.trim();
+            const direccion = inputDir.value.trim();
+            const metodoPago = selectPago ? selectPago.value : 'Efectivo';
+            const aceptoTerminos = checkTerminos.checked;
+
+            if(!nombre || !direccion || !telefono) { alert('Completa nombre, teléfono y dirección.'); return; }
+            if(!aceptoTerminos) { alert('Debes aceptar los Términos y Condiciones.'); return; }
+
+            let subtotal = carrito.reduce((sum, i) => sum + Number(i.price), 0);
+            let totalFinal = Math.max(0, subtotal + costoEnvioActual - descuentoCupon);
+            let detalle = carrito.map(i => `• ${i.name} ($${Number(i.price).toLocaleString('es-CL')})`).join('\n');
+            let linkGoogleMaps = `https://maps.google.com/?q=${latSeleccionada},${lngSeleccionada}`;
+
+            guardarPedidoEnHistorial(localActual ? localActual.name : 'Altoke', [...carrito], totalFinal);
+            
+            guardarPedidoParaRepartidor({
+                fecha: new Date().toLocaleDateString('es-CL', {day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit'}),
+                local: localActual ? localActual.name : 'Altoke',
+                nombre: nombre,
+                telefono: telefono,
+                direccion: direccion,
+                sector: selectSector.selectedOptions[0] ? selectSector.selectedOptions[0].text : 'Entrega',
+                costoEnvio: costoEnvioActual,
+                productos: [...carrito],
+                total: totalFinal,
+                pago: metodoPago,
+                gps: linkGoogleMaps,
+                asignadoA: "LIBRE"
+            });
+
+            let sectorTexto = selectSector.selectedOptions[0] ? selectSector.selectedOptions[0].text : '';
+            let mensaje = `¡Hola! ⚡ *Nuevo Pedido Altoke*\n\n👤 *Cliente:* ${nombre}\n📞 *Tel:* ${telefono}\n📍 *Dir:* ${direccion}\n📦 *Sector:* ${sectorTexto}\n🗺️ *GPS:* ${linkGoogleMaps}\n💳 *Pago:* ${metodoPago}\n\n🛒 *Detalle:*\n${detalle}\n\n💰 *Total:* $${totalFinal.toLocaleString('es-CL')}`;
+
+            let telLocal = localActual && localActual.whatsapp_phone ? localActual.whatsapp_phone.replace(/[^0-9]/g, '') : '56935038242';
+            window.open(`https://wa.me/${telLocal}?text=${encodeURIComponent(mensaje)}`, '_blank');
+            
+            cerrarCheckout();
+            carrito = [];
+            descuentoCupon = 0;
+            ocultarTodo();
+            const trackingView = document.getElementById('client-tracking-view');
+            if (trackingView) trackingView.classList.remove('hidden');
+        }
+
+        function verSeccionAdminLogin() { 
+            ocultarTodo(); 
+            const adminLogin = document.getElementById('admin-login-view');
+            if (adminLogin) adminLogin.classList.remove('hidden'); 
+        }
+
+        async function verificarClaveAdmin() {
+            const adminPass = document.getElementById('admin-password');
+            if (adminPass && adminPass.value.trim() === 'altokeadmin2026') {
+                ocultarTodo(); 
+                const adminView = document.getElementById('admin-view');
+                if (adminView) adminView.classList.remove('hidden');
+            } else { alert('Clave incorrecta.'); }
+        }
+
+        function verSeccionComercioLogin() { 
+            ocultarTodo(); 
+            const comercioLogin = document.getElementById('comercio-login-view');
+            if (comercioLogin) comercioLogin.classList.remove('hidden'); 
+        }
+
+        function ingresarPortalComercio() { alert('Portal de comercios activo.'); }
+        
+        function ocultarTodo() { 
+            const ids = ['stores-view', 'menu-view', 'driver-login-view', 'driver-view', 'comercio-login-view', 'admin-login-view', 'admin-view', 'client-tracking-view', 'cart-bar'];
+            ids.forEach(id => { 
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden'); 
+            }); 
+        }
+
+        function volverALocales() { 
+            const menuView = document.getElementById('menu-view');
+            const storesView = document.getElementById('stores-view');
+            const cartBar = document.getElementById('cart-bar');
+            
+            if (menuView) menuView.classList.add('hidden'); 
+            if (storesView) storesView.classList.remove('hidden'); 
+            if(carrito.length > 0 && cartBar) cartBar.classList.remove('hidden'); 
+        }
+
+        async function verMenu(store) {
+            localActual = store;
+            const storesView = document.getElementById('stores-view');
+            const menuView = document.getElementById('menu-view');
+            const tituloLocal = document.getElementById('nombre-local-titulo');
+            const infoWhatsapp = document.getElementById('whatsapp-local-info');
+            const bannerImg = document.getElementById('local-banner-img');
+
+            if (storesView) storesView.classList.add('hidden');
+            if (menuView) menuView.classList.remove('hidden');
+            if (tituloLocal) tituloLocal.innerText = store.name;
+            if (infoWhatsapp) infoWhatsapp.innerText = `WhatsApp: ${store.whatsapp_phone} | Horario: ${store.horario}`;
+            if (bannerImg) bannerImg.src = store.banner_url || 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=800';
+
+            const container = document.getElementById('products-container');
+            if (!container) return;
+            container.innerHTML = `<p class="text-gray-400 text-center py-8 text-sm">Cargando menú...</p>`;
+            
+            let productosFinales = [];
+            try {
+                if (store.id === 'trinigas-oficial') {
+                    productosFinales = store.productos || [];
+                } else {
+                    const res = await supabaseClient.from('products').select('*').eq('store_id', store.id);
+                    productosFinales = res.data || [];
+                }
+            } catch (e) {
+                productosFinales = store.productos || [];
+            }
+
+            if (productosFinales.length === 0) { 
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl border text-center text-xs">Sin productos.</div>`; 
+                return; 
+            }
+
+            container.innerHTML = '';
+            productosFinales.forEach(product => {
+                if(product.is_available === false) return;
+                container.innerHTML += `
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border flex justify-between items-center gap-3">
+                        <div class="flex items-center gap-3">
+                            <img src="${product.image_url}" class="w-14 h-14 object-cover rounded-xl border">
+                            <div><h4 class="font-bold text-gray-900 text-sm">${product.name}</h4><p class="text-xs font-semibold text-red-600">$${Number(product.price).toLocaleString('es-CL')}</p></div>
+                        </div>
+                        <button onclick='agregarAlCarrito(${JSON.stringify(product)})' class="bg-red-50 text-red-700 font-bold text-xs px-3 py-2 rounded-xl border border-red-200">Agregar +</button>
+                    </div>
+                `;
+            });
+        }
+
+        function agregarAlCarrito(product) { carrito.push(product); actualizarBarraCarrito(); }
+        function abrirModalLegal() { const modal = document.getElementById('modal-legal'); if (modal) modal.classList.remove('hidden'); }
+        function cerrarModalLegal() { const modal = document.getElementById('modal-legal'); if (modal) modal.classList.add('hidden'); }
+        function abrirSuscripcionModal() { const modal = document.getElementById('suscripcion-modal'); if (modal) modal.classList.remove('hidden'); }
+        function cerrarSuscripcionModal() { const modal = document.getElementById('suscripcion-modal'); if (modal) modal.classList.add('hidden'); }
+    </script>
+</body>
+</html>
