@@ -297,12 +297,13 @@
         let checkoutMap = null;
         let checkoutMarker = null;
         
-        let latLocalBase = -33.4005; 
-        let lngLocalBase = -71.1328;
-        let latSeleccionada = -33.4005; 
-        let lngSeleccionada = -71.1328;
+        // Coordenadas base configuradas para María Pinto (Centro de referencia)
+        let latLocalBase = -33.3283; 
+        let lngLocalBase = -71.0536;
+        let latSeleccionada = -33.3283; 
+        let lngSeleccionada = -71.0536;
         let costoEnvioActual = 0; 
-        let zonaActualNombre = "Curacaví Urbano";
+        let zonaActualNombre = "María Pinto Urbano";
         let distanciaKmActual = 0;
         let listaLocalesGlobal = [];
         let categoriaSeleccionada = 'todos';
@@ -406,7 +407,7 @@
                             <h3 class="font-bold text-gray-900 text-base">${store.name}</h3>
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${abierto ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${abierto ? '● Abierto' : '✕ Cerrado'}</span>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">📍 ${store.comuna || 'Curacaví'} | 🕒 ${store.horario || 'Abierto'}</p>
+                        <p class="text-xs text-gray-500 mt-1">📍 ${store.comuna || 'María Pinto'} | 🕒 ${store.horario || 'Abierto'}</p>
                     </div>
                     <button onclick='intentarAbrirMenu(${JSON.stringify(store)}, ${abierto})' class="${abierto ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-gray-300 text-gray-600'} font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-sm">${abierto ? 'Ver Menú ➔' : 'Cerrado 🔒'}</button>
                 `;
@@ -448,7 +449,7 @@
         function repetirPedidoHistorial(productosGuardados) { carrito = [...productosGuardados]; actualizarBarraCarrito(); abrirCheckout(); }
         function limpiarHistorial() { localStorage.removeItem('altoke_historial'); cargarHistorialLocalStorage(); }
 
-        // Cálculo de Distancia Automático
+        // Cálculo de Distancia Automático para María Pinto
         function calcularDistanciaKm(lat1, lon1, lat2, lon2) {
             const R = 6371; 
             const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -463,13 +464,13 @@
 
             if (distanciaKmActual <= 3) {
                 costoEnvioActual = 2000;
-                zonaActualNombre = "Curacaví Urbano (0 - 3 km)";
+                zonaActualNombre = "María Pinto Urbano (0 - 3 km)";
             } else if (distanciaKmActual > 3 && distanciaKmActual <= 8) {
                 costoEnvioActual = 3500;
-                zonaActualNombre = "Curacaví Periferia (3.1 - 8 km)";
+                zonaActualNombre = "María Pinto Periferia (3.1 - 8 km)";
             } else {
                 costoEnvioActual = 5000;
-                zonaActualNombre = "Curacaví Rural Extremo (> 8 km)";
+                zonaActualNombre = "María Pinto Rural Extremo (> 8 km)";
             }
 
             const lblZona = document.getElementById('txt-zona-calculada');
@@ -673,7 +674,7 @@
                         </div>
                         <div class="text-xs space-y-1">
                             <p><b>👤 Cliente:</b> ${p.nombre} (<a href="tel:${p.telefono}" class="text-red-600 underline">${p.telefono}</a>)</p>
-                            <p><b>📍 Dirección:</b> ${p.direccion} (${p.zona || 'Curacaví'})</p>
+                            <p><b>📍 Dirección:</b> ${p.direccion} (${p.zona || 'María Pinto'})</p>
                             <p class="text-gray-600"><b>Productos:</b><br>${p.productos.map(pr => `• ${pr.name}`).join('<br>')}</p>
                             <p class="text-emerald-700 font-bold">💰 Comisión de despacho: $${(p.costoEnvio || 0).toLocaleString('es-CL')}</p>
                         </div>
@@ -762,7 +763,7 @@
                             <span class="text-[10px] text-gray-500">${p.fecha}</span>
                         </div>
                         <p class="text-xs text-gray-600"><b>Productos:</b><br>${p.productos.map(pr => `• ${pr.name}`).join('<br>')}</p>
-                        <p class="text-xs"><b>Destino:</b> ${p.direccion} (${p.zona || 'Curacaví'})</p>
+                        <p class="text-xs"><b>Destino:</b> ${p.direccion} (${p.zona || 'María Pinto'})</p>
                         <div class="flex justify-between items-center pt-1">
                             <span class="text-xs font-black text-red-600">Total: $${(p.total || 0).toLocaleString('es-CL')}</span>
                             ${estadoBoton}
