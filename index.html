@@ -918,7 +918,7 @@
         }
 
         function agregarAlCarrito(product) { carrito.push(product); actualizarBarraCarrito(); }
-        function abrirModalLegal() { const modal = document.getElementById('modal-legal'); if (modal) modal.classList.add('hidden'); }
+        function abrirModalLegal() { const modal = document.getElementById('modal-legal'); if (modal) modal.classList.remove('hidden'); }
         function cerrarModalLegal() { const modal = document.getElementById('modal-legal'); if (modal) modal.classList.add('hidden'); }
         function abrirSuscripcionModal() { const modal = document.getElementById('suscripcion-modal'); if (modal) modal.classList.remove('hidden'); }
         function cerrarSuscripcionModal() { const modal = document.getElementById('suscripcion-modal'); if (modal) modal.classList.add('hidden'); }
