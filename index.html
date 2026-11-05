@@ -297,13 +297,12 @@
         let checkoutMap = null;
         let checkoutMarker = null;
         
-        // Coordenadas base de Curacaví (Centro de referencia para cálculo si el local no tiene coordenadas)
         let latLocalBase = -33.4005; 
         let lngLocalBase = -71.1328;
         let latSeleccionada = -33.4005; 
         let lngSeleccionada = -71.1328;
         let costoEnvioActual = 0; 
-        let zonaActualNombre = "Zona Urbana";
+        let zonaActualNombre = "Curacaví Urbano";
         let distanciaKmActual = 0;
         let listaLocalesGlobal = [];
         let categoriaSeleccionada = 'todos';
@@ -362,7 +361,6 @@
                 listaLocalesGlobal = localesFinales;
                 renderizarLocales(localesFinales);
             } catch (e) {
-                console.error("Error conectando a Supabase, usando respaldo:", e);
                 listaLocalesGlobal = [trinigasRespaldo];
                 renderizarLocales(listaLocalesGlobal);
             }
@@ -450,30 +448,25 @@
         function repetirPedidoHistorial(productosGuardados) { carrito = [...productosGuardados]; actualizarBarraCarrito(); abrirCheckout(); }
         function limpiarHistorial() { localStorage.removeItem('altoke_historial'); cargarHistorialLocalStorage(); }
 
-        // --- CÁLCULO AUTOMÁTICO DE DISTANCIA (Fórmula Haversine) ---
+        // Cálculo de Distancia Automático
         function calcularDistanciaKm(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radio de la tierra en km
+            const R = 6371; 
             const dLat = (lat2 - lat1) * (Math.PI / 180);
             const dLon = (lon2 - lon1) * (Math.PI / 180);
-            const a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c; 
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
         }
 
         function actualizarTarifaPorUbicacion() {
-            // Distancia desde el local (o centro base) al pin seleccionado por el cliente
             const distancia = calcularDistanciaKm(latLocalBase, lngLocalBase, latSeleccionada, lngSeleccionada);
             distanciaKmActual = Number(distancia.toFixed(1));
 
             if (distanciaKmActual <= 3) {
                 costoEnvioActual = 2000;
-                zonaActualNombre = "Curacaví Urbano / Centro (0 - 3 km)";
+                zonaActualNombre = "Curacaví Urbano (0 - 3 km)";
             } else if (distanciaKmActual > 3 && distanciaKmActual <= 8) {
                 costoEnvioActual = 3500;
-                zonaActualNombre = "Curacaví Semi-Rural / Periferia (3.1 - 8 km)";
+                zonaActualNombre = "Curacaví Periferia (3.1 - 8 km)";
             } else {
                 costoEnvioActual = 5000;
                 zonaActualNombre = "Curacaví Rural Extremo (> 8 km)";
@@ -496,7 +489,7 @@
                     checkoutMap.setView([latSeleccionada, lngSeleccionada], 15);
                     checkoutMarker.setLatLng([latSeleccionada, lngSeleccionada]);
                     actualizarTarifaPorUbicacion();
-                    alert('📍 Ubicación GPS obtenida con éxito.');
+                    alert('📍 Ubicación GPS obtenida.');
                 }
             }, () => { alert('No se pudo obtener el GPS.'); }, { enableHighAccuracy: true });
         }
@@ -578,7 +571,7 @@
             else abrirCheckout(); 
         }
 
-        // --- SISTEMA DE REPARTIDORES ---
+        // Repartidores
         function verSeccionDriverLogin() { 
             ocultarTodo(); 
             const driverLogin = document.getElementById('driver-login-view');
@@ -680,12 +673,12 @@
                         </div>
                         <div class="text-xs space-y-1">
                             <p><b>👤 Cliente:</b> ${p.nombre} (<a href="tel:${p.telefono}" class="text-red-600 underline">${p.telefono}</a>)</p>
-                            <p><b>📍 Dirección:</b> ${p.direccion} (${p.zona})</p>
+                            <p><b>📍 Dirección:</b> ${p.direccion} (${p.zona || 'Curacaví'})</p>
                             <p class="text-gray-600"><b>Productos:</b><br>${p.productos.map(pr => `• ${pr.name}`).join('<br>')}</p>
-                            <p class="text-emerald-700 font-bold">💰 Comisión de despacho: $${p.costoEnvio.toLocaleString('es-CL')}</p>
+                            <p class="text-emerald-700 font-bold">💰 Comisión de despacho: $${(p.costoEnvio || 0).toLocaleString('es-CL')}</p>
                         </div>
                         <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs font-bold">
-                            <span>Total a cobrar: <span class="text-red-600">$${p.total.toLocaleString('es-CL')}</span> (${p.pago})</span>
+                            <span>Total a cobrar: <span class="text-red-600">$${(p.total || 0).toLocaleString('es-CL')}</span> (${p.pago})</span>
                             ${btnAccion}
                         </div>
                     </div>
@@ -714,7 +707,7 @@
             alert('✅ Pedido completado y sumado a tus comisiones.');
         }
 
-        // --- SISTEMA DE COMERCIOS / LOCALES ---
+        // Comercios
         function verSeccionComercioLogin() {
             ocultarTodo();
             const comercioLogin = document.getElementById('comercio-login-view');
@@ -750,7 +743,7 @@
             let pedidosLocal = pedidos.filter(p => p.local.toLowerCase().includes(comercioActual.toLowerCase()));
 
             if (pedidosLocal.length === 0) {
-                container.innerHTML = `<div class="bg-gray-50 p-6 rounded-2xl border text-center text-gray-400 text-xs">No hay pedidos recientes para este local. (Prueba haciendo un pedido de prueba seleccionando tu local).</div>`;
+                container.innerHTML = `<div class="bg-gray-50 p-6 rounded-2xl border text-center text-gray-400 text-xs">No hay pedidos recientes para este local.</div>`;
                 return;
             }
 
@@ -769,9 +762,9 @@
                             <span class="text-[10px] text-gray-500">${p.fecha}</span>
                         </div>
                         <p class="text-xs text-gray-600"><b>Productos:</b><br>${p.productos.map(pr => `• ${pr.name}`).join('<br>')}</p>
-                        <p class="text-xs"><b>Destino:</b> ${p.direccion} (${p.zona})</p>
+                        <p class="text-xs"><b>Destino:</b> ${p.direccion} (${p.zona || 'Curacaví'})</p>
                         <div class="flex justify-between items-center pt-1">
-                            <span class="text-xs font-black text-red-600">Total: $${p.total.toLocaleString('es-CL')}</span>
+                            <span class="text-xs font-black text-red-600">Total: $${(p.total || 0).toLocaleString('es-CL')}</span>
                             ${estadoBoton}
                         </div>
                     </div>
@@ -783,7 +776,7 @@
             let pedidos = JSON.parse(localStorage.getItem('altoke_pedidos_activos') || '[]');
             pedidos[index].pedidoListo = true;
             localStorage.setItem('altoke_pedidos_activos', JSON.stringify(pedidos));
-            alert('✅ ¡Pedido marcado como LISTO! Ahora los drivers disponibles podrán verlo y retirarlo.');
+            alert('✅ ¡Pedido marcado como LISTO!');
             cargarPanelComercio();
         }
 
@@ -828,7 +821,7 @@
                 pedidoListo: false
             });
 
-            let mensaje = `¡Hola! ⚡ *Nuevo Pedido Altoke*\n\n👤 *Cliente:* ${nombre}\n📞 *Tel:* ${telefono}\n📍 *Dir:* ${direccion}\n🗺️ *Ubicación GPS:* ${linkGoogleMaps}\n🛣️ *Distancia:* ${distanciaKmActual} km (${zonaActualNombre})\n💳 *Pago:* ${metodoPago}\n\n🛒 *Detalle:*\n${detalle}\n\n🚚 *Despacho:* $${costoEnvioActual.toLocaleString('es-CL')}\n💰 *Total a Pagar:* $${totalFinal.toLocaleString('es-CL')}`;
+            let mensaje = `¡Hola! ⚡ *Nuevo Pedido Altoke*\n\n👤 *Cliente:* ${nombre}\n📞 *Tel:* ${telefono}\n📍 *Dir:* ${direccion}\n🗺️ *GPS:* ${linkGoogleMaps}\n🛣️ *Distancia:* ${distanciaKmActual} km (${zonaActualNombre})\n💳 *Pago:* ${metodoPago}\n\n🛒 *Detalle:*\n${detalle}\n\n🚚 *Despacho:* $${costoEnvioActual.toLocaleString('es-CL')}\n💰 *Total:* $${totalFinal.toLocaleString('es-CL')}`;
 
             let telLocal = localActual && localActual.whatsapp_phone ? localActual.whatsapp_phone.replace(/[^0-9]/g, '') : '56935038242';
             window.open(`https://wa.me/${telLocal}?text=${encodeURIComponent(mensaje)}`, '_blank');
@@ -925,7 +918,7 @@
         }
 
         function agregarAlCarrito(product) { carrito.push(product); actualizarBarraCarrito(); }
-        function abrirModalLegal() { const modal = document.getElementById('modal-legal'); if (modal) modal.classList.remove('hidden'); }
+        function abrirModalLegal() { const modal = document.getElementById('modal-legal'); if (modal) modal.classList.add('hidden'); }
         function cerrarModalLegal() { const modal = document.getElementById('modal-legal'); if (modal) modal.classList.add('hidden'); }
         function abrirSuscripcionModal() { const modal = document.getElementById('suscripcion-modal'); if (modal) modal.classList.remove('hidden'); }
         function cerrarSuscripcionModal() { const modal = document.getElementById('suscripcion-modal'); if (modal) modal.classList.add('hidden'); }
